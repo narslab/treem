@@ -1,6 +1,6 @@
 ## Exclude data files
-data/raw/*
-data/tidy/*
+data/raw/
+data/tidy/
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
