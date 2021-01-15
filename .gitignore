@@ -1,8 +1,7 @@
 ## Exclude data files
 data/raw/
 data/tidy/
-git rm -rf data/raw/
-git rm -rf dat/tidy/
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
