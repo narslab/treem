@@ -1,0 +1,169 @@
+\documentclass[preprint, nonatbib, 11pt]{elsarticle}
+\usepackage{geometry}
+\geometry{top=1in, left=1.3in,right=1.3in,bottom=1in}
+
+\usepackage{booktabs,calc,soul,xcolor}
+\setstcolor{red}
+
+\usepackage{marginnote} 
+% Marginpar width
+%Marginpar width
+\newcommand{\pts}[1]{\marginpar{ \small\hspace{0pt} \textit{[#1]} } }
+\setlength{\marginparwidth}{1.1in}
+
+
+%\reversemarginpar
+%\setlength{\marginparsep}{.02in}
+
+%% Fonts
+% \usepackage{fourier}
+% \usepackage[T1]{pbsi}
+
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+%\usepackage{minted}
+
+\usepackage{rotating}
+\usepackage{amsmath, amssymb}
+%% Cite Title
+%\usepackage[style=numeric,backend=biber,sorting=none,maxcitenames=2,maxbibnames=99,doi=false,isbn=false,url=false,eprint=false]{biblatex}
+\addbibresource{references.bib}
+
+%\usepackage{lineno}
+%\renewcommand\linenumberfont{\normalfont\small}
+%\linenumbers
+
+
+
+\usepackage{graphicx}
+\graphicspath{{./images/}}
+ 
+\usepackage{rotating}
+\usepackage{longtable}
+
+%\usepackage{enumerate}
+\usepackage{paralist}
+\usepackage{epstopdf,subfigure,hyperref,enumerate,polynom,polynomial}
+\usepackage{multirow,minitoc,fancybox,array,multicol}
+
+% \definecolor{slblue}{rgb}{0,.3,.62}
+% \hypersetup{
+%     colorlinks,%
+%     citecolor=blue,%
+%     filecolor=blue,%
+%     linkcolor=blue,
+%     urlcolor=slblue
+% }
+
+
+%%%TIKZ
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{pgfgantt}
+\pgfplotsset{compat=newest}
+
+\usetikzlibrary{arrows,shapes,positioning,shapes.geometric}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{shadows,automata}
+\usetikzlibrary{patterns}
+\usetikzlibrary{trees,mindmap,backgrounds}
+%\usetikzlibrary{circuits.ee.IEC}
+\usetikzlibrary{decorations.text}
+\usetikzlibrary{ decorations.pathreplacing,decorations.pathmorphing}
+\tikzset{no shadows/.style={general shadow/.style=}}
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{8} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{8}  % for normal
+
+
+\newcommand{\osn}{\oldstylenums}
+\newcommand{\dg}{^{\circ}}
+\newcommand{\lt}{\left}
+\newcommand{\rt}{\right}
+\newcommand{\pt}{\phantom}
+\newcommand{\tf}{\therefore}
+\newcommand{\?}{\stackrel{?}{=}}
+\newcommand{\fr}{\frac}
+\newcommand{\dfr}{\dfrac}
+\newcommand{\tn}{\tabularnewline}
+\newcommand{\nl}{\newline}
+\newcommand\relph[1]{\mathrel{\phantom{#1}}}
+\newcommand{\cm}{\checkmark}
+\newcommand{\ol}{\overline}
+
+%%% COLORS %%%%
+\newcommand{\rd}{\color{red}}
+\newcommand{\bl}{\color{blue}}
+\newcommand{\pl}{\color{purple}}
+\newcommand{\og}{\color{orange!90!black}}
+\newcommand{\gr}{\color{green!40!black}}
+% Custom colors
+%\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+
+%%% FORMATTING MACROS %%%%%
+\newcommand{\nin}{\noindent}
+\newcommand{\la}{\lambda}
+\renewcommand{\th}{\theta}
+\newcommand{\al}{\alpha}
+\newcommand{\G}{\Gamma}
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+    \node[shape=circle,draw,thick,inner sep=1pt] (char) {\small #1};}}
+
+\newcommand{\bc}{\begin{compactenum}[\quad--]}
+\newcommand{\ec}{\end{compactenum}}
+
+\newcommand{\p}{\partial}
+\newcommand{\pd}[2]{\frac{\partial{#1}}{\partial{#2}}}
+\newcommand{\dpd}[2]{\dfrac{\partial{#1}}{\partial{#2}}}
+\newcommand{\pdd}[2]{\frac{\partial^2{#1}}{\partial{#2}^2}}
+
+\journal{Transportation Research Interdisciplinary Perspectives}
+
+\begin{document}
+ 
+ 
+\begin{frontmatter}
+  
+\title{Impacts of COVID-19 on urban rail transit: A case study of Boston}
+
+
+\author[umass]{Author 1}
+\author[umass]{Author 2} 
+\author[umass]{Author 3}
+\author[umass]{Author 4}
+
+
+\address[umass]{Department of Civil and Environmental Engineering, University of Massachusetts Amherst, MA 01003, United States}
+
+\begin{abstract}
+\end{abstract}
+
+\begin{keyword}
+  COVID-19 \sep public transportation \sep energy
+\end{keyword}
+
+\end{frontmatter}
+
+\section{Introduction}
+
+\section{Material and methods}
+
+\section{Results}
+
+\section{Discussion}
+
+\section{Conclusions}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+
