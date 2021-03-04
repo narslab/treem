@@ -168,21 +168,30 @@
 {\it Describe processing and trajectory computation; corrections}
 
 Data on train locations and tap-in ridership were extracted from the MBTA database.
-The location data (latitude and longitude) were recorded for time intervals of varying duration. Based on the raw data, we use the Haversine formula to calculate the distance between each time record for tracking the train trajectory. And then we can calculate the speed,acceleration accordingly. However after the calculation, we observed many excessive speed values. Then we designed the following algorithm for correction:
-\item{Finish the first calculation iteration.}
-\item{Find out the excessive speed rows and save them to a separate table for diagnostics analysis.}
-\item{Use the excessive speed index to locate the wrong speed row in the original table and replace them by the correct value before}
-\item{Correct the vehicle distance and acceleration accordingly.}
+The location data (latitude and longitude) were recorded for time intervals of varying duration. Based on the raw data, we use the Haversine formula to calculate the distance between each time record for tracking the train trajectory. And then we can calculate the speed, acceleration accordingly. However after the calculation, we observed many excessive speed values. Then we designed the following algorithm for correction:
+\begin{itemize}
+\item Finish the first calculation iteration.
+\item Find out the excessive speed rows and save them to a separate table for diagnostics analysis.
+\item Use the excessive speed index to locate the wrong speed row in the original table and replace them by the correct value before
+\item Correct the vehicle distance and acceleration accordingly
+\end{itemize}
 
 
-\begin{table}[]\footnotesize
+We implemented a procedure to derive speed and acceleration time bins for each hour. 
+
+The final processed dataset contains distance, speed, acceleration, speed bins, acceleration bins, energy consumed and tap-in ridership data for a given hour in a given day of the year.
+The variables are summarized in \autoref{tab:variables}.
+
+\begin{table}[ht]\footnotesize
     \centering
     \begin{tabular}{l l}\toprule
         \bf Variable & \bf Description \\
-       Speed  &  \\\bottomrule
+       Speed  &  \\
+       speed\_X\_bin & time spent in an equal-probability speed interval \\
+       \bottomrule
     \end{tabular}
     \caption{Summary of variables used in model}
-    \label{tab:my_label}
+    \label{tab:variables}
 \end{table}
 
 \subsection{Energy consumption modeling}
@@ -197,7 +206,7 @@ A backward model for electric train energy was developed by \cite{wang2017electr
 \section*{Acknowledgments}
 
 \bibliographystyle{elsarticle-num}
-\bibliography{../TREEM.bib}
+\bibliography{TREEM.bib}
 
 \end{document}
 
