@@ -168,7 +168,12 @@
 {\it Describe processing and trajectory computation; corrections}
 
 Data on train locations and tap-in ridership were extracted from the MBTA database.
-The location data (latitude and longitude) were recorded for time intervals of varying durations.
+The location data (latitude and longitude) were recorded for time intervals of varying duration. Based on the raw data, we use the Haversine formula to calculate the distance between each time record for tracking the train trajectory. And then we can calculate the speed,acceleration accordingly. However after the calculation, we observed many excessive speed values. Then we designed the following algorithm for correction:
+\item{Finish the first calculation iteration.}
+\item{Find out the excessive speed rows and save them to a separate table for diagnostics analysis.}
+\item{Use the excessive speed index to locate the wrong speed row in the original table and replace them by the correct value before}
+\item{Correct the vehicle distance and acceleration accordingly.}
+
 
 \begin{table}[]\footnotesize
     \centering
