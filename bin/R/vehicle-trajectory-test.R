@@ -35,7 +35,6 @@ preprocess_data = function(df){
     print(df_na_rate)
     # remove the rows with values of lat and lon are 0
     df = df[!(is.na(df$lon)) | !(is.na(df$lat)),] 
-    df = df[df$lon != 0 | df$lat != 0,]
     df = df[order(df$trainid, df$trxtime),]
     df = distinct(df, trxtime, trainid, .keep_all = TRUE) # Remove the duplicated time record
     return(df)
@@ -55,7 +54,8 @@ compute_trajectories <- function(d) {
     d$accel_mps2 = NA
     d$accel_mps2 = as.numeric(d$accel_mps2)
     n <- nrow(d)
-    diagnostics = {}
+    # diagnostics = {}
+    d_excessive = {}
     if (n >= 2) {
         # Compute interval distance using Haversine function
         d$dist_meters[2:n] = distHaversine(cbind(d$lon[1:n-1],d$lat[1:n-1]),cbind(d$lon[2:n],d$lat[2:n]))
@@ -65,41 +65,37 @@ compute_trajectories <- function(d) {
         d$speed_mps[2:n] = d$dist_meters[2:n] / d$interval_seconds[2:n]
         # Convert speed to kph
         d$speed_kph[2:n] = d$speed_mps[2:n] * 3.6
-        # # Compute accelerations
-        # d$accel_mps2[2:n] = (d$speed_mps[2:n] - d$speed_mps[1:n-1])/d$interval_seconds[2:n]
+        # Compute accelerations
+        d$accel_mps2[2:n] = (d$speed_mps[2:n] - d$speed_mps[1:n-1])/d$interval_seconds[2:n]
         # Spurious values statistics
         index_excessive_speeds = as.numeric(row.names(d[(d$speed_kph > 128) & (!is.na(d$speed_kph)),]))
-        # Original data metrics calculation
-         diagnostics$mean_original_speed_kph = mean(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
-         diagnostics$min_original_speed_kph = min(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
-         diagnostics$max_original_speed_kph = max(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
-         diagnostics$num_original_speed_kph = length(as.numeric(d[, "speed_kph"]))
-        # Excessive data metrics calculation
-         diagnostics$mean_excess_speed_kph = mean(as.numeric(d[index_excessive_speeds, "speed_kph"]))
-         diagnostics$min_excess_speed_kph = min(d[index_excessive_speeds, "speed_kph"]) 
-         diagnostics$max_excess_speed_kph = max(as.numeric(d[index_excessive_speeds, "speed_kph"])) 
-         diagnostics$num_excess_speed_kph = length(d[index_excessive_speeds, "speed_kph"]) 
-         diagnostics$prop_excess_speed_kph = round(100*diagnostics$num_excess_speed/n, 2)
+        d_excessive = d[index_excessive_speeds,]
+        # # Original data metrics calculation
+        #  diagnostics$mean_original_speed_kph = mean(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
+        #  diagnostics$min_original_speed_kph = min(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
+        #  diagnostics$max_original_speed_kph = max(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
+        #  diagnostics$num_original_speed_kph = length(as.numeric(d[, "speed_kph"]))
+        # # Excessive data metrics calculation
+        #  diagnostics$mean_excess_speed_kph = mean(as.numeric(d[index_excessive_speeds, "speed_kph"]))
+        #  diagnostics$min_excess_speed_kph = min(d[index_excessive_speeds, "speed_kph"]) 
+        #  diagnostics$max_excess_speed_kph = max(as.numeric(d[index_excessive_speeds, "speed_kph"])) 
+        #  diagnostics$num_excess_speed_kph = length(d[index_excessive_speeds, "speed_kph"]) 
+        #  diagnostics$prop_excess_speed_kph = round(100*diagnostics$num_excess_speed/n, 2)
         # Correct the excessive speed values and recalculate acceleration and distance
-        repeat{
-        d[index_excessive_speeds, c('speed_kph',"speed_mps")] = d[index_excessive_speeds - 1 , c('speed_kph',"speed_mps")]
-        d[index_excessive_speeds, "dist_meters"] = d[index_excessive_speeds, "speed_mps"] * d[index_excessive_speeds,"interval_seconds"]
+        # repeat{
+        # d[index_excessive_speeds, c('speed_kph',"speed_mps")] = d[index_excessive_speeds - 1 , c('speed_kph',"speed_mps")]
+        # d[index_excessive_speeds, "dist_meters"] = d[index_excessive_speeds, "speed_mps"] * d[index_excessive_speeds,"interval_seconds"]
         # d[index_excessive_speeds, "accel_mps2"] = (d[index_excessive_speeds, "speed_mps"] 
         #                                           - d[index_excessive_speeds - 1, "speed_mps"]) / d[index_excessive_speeds,"interval_seconds"]
-        if(max(d$speed_kph,na.rm = TRUE) <= 128){break}
-        }
-         # Compute accelerations
-         d$accel_mps2[2:n] = (d$speed_mps[2:n] - d$speed_mps[1:n-1])/d$interval_seconds[2:n]
-         # Correct accelerations
-         index_excessive_accelerations = as.numeric(row.names(d[(abs(d$accel_mps2) > 6) & (!is.na(d$accel_mps2)),]))
-         d[index_excessive_accelerations, "accel_mps2"] = NA
-         # Corrected data metrics calculation
-         diagnostics$mean_corrected_speed_kph = mean(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
-         diagnostics$min_corrected_speed_kph = min(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
-         diagnostics$max_corrected_speed_kph = max(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
-         diagnostics$num_corrected_speed_kph = length(as.numeric(d[, "speed_kph"]))
+        # if(max(d$speed_kph,na.rm = TRUE) <= 128){break}
+        # }
+        # # Corrected data metrics calculation
+        #  diagnostics$mean_corrected_speed_kph = mean(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
+        #  diagnostics$min_corrected_speed_kph = min(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
+        #  diagnostics$max_corrected_speed_kph = max(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
+        #  diagnostics$num_corrected_speed_kph = length(as.numeric(d[, "speed_kph"]))
     }
-    return(list(data = d ,diag_metrics = diagnostics))   
+    return(d_excessive)   
 }
 
 # Process calculation 
@@ -112,14 +108,14 @@ process_month_trajectory = function(data, yy, mm){
         for (j in unique(data_day$trainid)) {
             data_day_train = data_day[data_day$trainid == j, ]        
             trajectory_and_diagnostics <- compute_trajectories(data_day_train)  
-            trajectories = trajectory_and_diagnostics$data
-            diagnostics = trajectory_and_diagnostics$diag_metrics          
-            results_df <- rbind(results_df, trajectories)
-            diagnostics_df <- rbind(diagnostics_df, diagnostics) 
+            # trajectories = trajectory_and_diagnostics$data
+            # diagnostics = trajectory_and_diagnostics$diag_metrics          
+            results_df <- rbind(results_df, trajectory_and_diagnostics)
+            # diagnostics_df <- rbind(diagnostics_df, diagnostics) 
         }
     }
-    write.csv(x = results_df, file.path("D:/Github/treem/data/tidy/", paste("trajectory", yy, mm, ".csv", sep = "-", collapse = "")))
-    write.csv(x = diagnostics_df, file.path("D:/Github/treem/data/tidy/", paste("trajectory-diagnostics" , yy, mm, ".csv", sep = "-",collapse = "")))
+    write.csv(x = results_df, file.path("D:/Github/treem/data/tidy/", paste("trajectory-test-excessive", yy, mm, ".csv", sep = "-", collapse = "")))
+    # write.csv(x = diagnostics_df, file.path("D:/Github/treem/data/tidy/", paste("trajectory-diagnostics" , yy, mm, ".csv", sep = "-",collapse = "")))
     # Uncomment the beneath line and check the computation result
     # return(list(result = results_df, result_diag = diagnostics_df ))
  }
