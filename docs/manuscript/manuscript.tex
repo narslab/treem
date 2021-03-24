@@ -168,7 +168,11 @@
 {\it Describe processing and trajectory computation; corrections}
 
 Data on train locations and tap-in ridership were extracted from the MBTA database.
-The location data (latitude and longitude) were recorded for time intervals of varying duration. Based on the raw data, we use the Haversine formula to calculate the distance between each time record for tracking the train trajectory. And then we can calculate the speed, acceleration accordingly. However after the calculation, we observed many excessive speed values. Then we designed the following algorithm for correction:
+The location data (latitude and longitude) were recorded for time intervals of varying duration. Based on the raw data, we use the Haversine formula to calculate the distance between each time record for tracking train trajectories. And then we can calculate the speed, acceleration accordingly. 
+After achieving the values mentioned above, we found several excessive speeds and accelerations. For understanding the reasons for the appearance of these values, we looked back to the original table and did some statistical analysis. 
+This main reason is  some record mistakes in the original table. Lat and Lon in some rows are 0, and corresponding time intervals are distributed to a small range, The vehicle distance calculated under this situation will be huge. If we translated this into the physical meaning,the train will stop in a very short time. So the average speed and acceleration will be massive as well. This is unrealistic and there must be some mistakes appear when the train tried to record the location.
+
+Based on the observations above, we design the following algorithm for correction.
 \begin{itemize}
 \item Finish the first calculation iteration.
 \item Find out the excessive speed rows and save them to a separate table for diagnostics analysis.
@@ -186,8 +190,15 @@ The variables are summarized in \autoref{tab:variables}.
     \centering
     \begin{tabular}{l l}\toprule
         \bf Variable & \bf Description \\
-       Speed  &  \\
+       speed  &  train speed at each time record \\
+       acceleration  &  train acceleration at each time record \\
+       temperature & daily temperature in Boston area\\
+       ridership & tap-in ridership data for each half hour\\
+       distance & vehicle distance between each two time records\\
+       time_hr & train operating time on each hour\\
+       average hourly speed & the average speed in one hour\\
        speed\_X\_bin & time spent in an equal-probability speed interval \\
+       acceleration \_X\_bin & time spent in an equal-probability acceleration interval \\
        \bottomrule
     \end{tabular}
     \caption{Summary of variables used in model}
