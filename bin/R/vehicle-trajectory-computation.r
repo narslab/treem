@@ -91,7 +91,8 @@ compute_trajectories <- function(d) {
          # Compute accelerations
          d$accel_mps2[2:n] = (d$speed_mps[2:n] - d$speed_mps[1:n-1])/d$interval_seconds[2:n]
          # Correct accelerations
-         index_excessive_accelerations = as.numeric(row.names(d[(abs(d$accel_mps2) > 6) & (!is.na(d$accel_mps2)),]))
+         # Count the number of excessive values
+         index_excessive_accelerations = as.numeric(row.names(d[(abs(d$accel_mps2) > 3) & (!is.na(d$accel_mps2)),]))
          d[index_excessive_accelerations, "accel_mps2"] = NA
          # Corrected data metrics calculation
          diagnostics$mean_corrected_speed_kph = mean(as.numeric(d[, "speed_kph"]),na.rm=TRUE)
