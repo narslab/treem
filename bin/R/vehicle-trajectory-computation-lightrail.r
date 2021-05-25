@@ -11,15 +11,10 @@ library(RColorBrewer) # color panel
 # Read data from folder
 # Suggestion: Just do one year at one time. One year's table has 94363502 rows(green)
 YEARLIST = c('19')
-<<<<<<< HEAD
-MONTHlIST = c("04") # FOR FULL TABLE
-DISTANCE_FILEPATH = "../../data/raw/vehicle-location/"
-=======
 MONTHLIST = c("04") # FOR FULL TABLE
 # change to your path
 DISTANCE_FILEPATH = "../../data/raw/vehicle-location/" #"D:/Github/treem/data/raw/vehicle-location/"
->>>>>>> 7349074f29911d538a9db793662d56f20a4950c5
-
+ 
 # Add different time scale columns
 add_dd_mm_yy_cols = function(df) {
     df$day = day(df$trxtime)
@@ -166,13 +161,9 @@ process_month_trajectory = function(data){
     for(i in unique(data$day)) { 
         day_df = compute_day_trajectories(data, i)       
         results_df <- rbind(results_df, day_df)
-<<<<<<< HEAD
-        }
-=======
     }
     return (results_df)
->>>>>>> 7349074f29911d538a9db793662d56f20a4950c5
- }
+}
 
 # Generate the final table
 main = function(year_l, month_l) {
@@ -180,17 +171,11 @@ main = function(year_l, month_l) {
         for (m in month_l) {
             df_light = get_light_rail_trajectories(y, m)
             df_light = preprocess_data( df_light)
-<<<<<<< HEAD
-            df_light = process_month_trajectory( df_light)  
-            write.csv(x = results_df, file.path("../../data/tidy/", paste("green", "trajectory", yy, mm, ".csv", sep = "-", collapse = "")))
-=======
             df_light = process_month_trajectory(df_light)
             # change to your path
             write.csv(x = df_light, 
                       file.path("../../data/tidy", 
                                 paste(paste("green", "trajectory", y, m, sep = "-", collapse = ""), ".csv", sep="")))
-            
->>>>>>> 7349074f29911d538a9db793662d56f20a4950c5
         }
     }
 }
