@@ -22,10 +22,10 @@ add_dd_mm_yy_cols = function(df) {
     return(df)
 }
 # Read light rail location raw data
-get_light_rail_trajectories = function(year, month){
-    assign("dg", fread(paste(DISTANCE_FILEPATH, paste("lightrail", "trajectories", month, year, ".csv", sep = "-", collapse = ""), sep="")))
-    dg = add_dd_mm_yy_cols(dg)
-    return(dg)
+get_heavy_rail_trajectories = function(year, month){
+    assign("dh", fread(paste(DISTANCE_FILEPATH, paste("heavyrail", "trajectories", month, year, ".csv", sep = "-", collapse = ""), sep="")))
+    dh = add_dd_mm_yy_cols(dh)
+    return(dh)
 }
 
 # Data preprocessing
@@ -42,31 +42,35 @@ preprocess_data = function(df){
 
 # Subset table by a given day
 get_day_trajectories = function(df, dayid){
-    day_df = df[day == dayid, .SD, keyby = .(trainid, vehicleid, routeid) ]
-    # print(paste("Number of observations", nrow(day_df), "on day", dayid ))
+    day_df = df[day == dayid, .SD, keyby = .(lineid, trainid) ]
+    print(paste("Number of observations", nrow(day_df), "on day", dayid ))
     return(day_df)
 }
+
 # Create trajectory index table 
 get_unique_trajectory_indices = function(day_df) {
-    trajectory_index_df = unique(day_df[, .(trainid, vehicleid, routeid, car1, car2, car3)])
-    # print(paste("Number of unique trajectories extracted: ", dim(trajectory_index_df)[1]))
+    trajectory_index_df = unique(day_df[, .(trainid, vehicleid, lineid, heavyrailbranchid, tripid)])
+    print(paste("Number of unique trajectories extracted: ", dim(trajectory_index_df)[1]))
     return(trajectory_index_df)
 }
+
 # Subset the raw table by unique index
 extract_unique_trajectory = function(day_df, traj_index_df, index){
-    day_df[["car2"]][is.na(day_df[["car2"]])] <- 9999999
-    day_df[["car3"]][is.na(day_df[["car3"]])] <- 9999999
-    traj_index_df[["car2"]][is.na(traj_index_df[["car2"]])] <- 9999999
-    traj_index_df[["car3"]][is.na(traj_index_df[["car3"]])] <- 9999999
+    day_df[["heavyrailbranchid"]][is.na(day_df[["heavyrailbranchid"]])] <- 9999999
+    day_df[["tripid"]][is.na(day_df[["tripid"]])] <- 9999999
+    day_df[["vehicleid"]][is.na(day_df[["vehicleid"]])] <- 9999999
+    traj_index_df[["heavyrailbranchid"]][is.na(traj_index_df[["heavyrailbranchid"]])] <- 9999999
+    traj_index_df[["tripid"]][is.na(traj_index_df[["tripid"]])] <- 9999999
+    traj_index_df[["vehicleid"]][is.na(traj_index_df[["vehicleid"]])] <- 9999999
     trajectory = day_df[trainid == traj_index_df[index, 1][[1]] & 
                         vehicleid == traj_index_df[index, 2][[1]] &
-                        routeid == traj_index_df[index, 3][[1]] &
-                        car1 == traj_index_df[index, 4][[1]] &
-                        car2 == traj_index_df[index, 5][[1]] &
-                        car3 == traj_index_df[index, 6][[1]],][order(trxtime)]
+                        lineid == traj_index_df[index, 3][[1]] &
+                        heavyrailbranchid == traj_index_df[index, 4][[1]] &
+                        tripid == traj_index_df[index, 5][[1]],][order(trxtime)]
     clean_trajectory = trajectory[, .SD[1], by = trxtime] # takes first observation of multiple with same time
-    clean_trajectory[["car2"]][clean_trajectory[["car2"]] == 9999999] = NA
-    clean_trajectory[["car3"]][clean_trajectory[["car3"]] == 9999999] = NA
+    clean_trajectory[["heavyrailbranchid"]][clean_trajectory[["heavyrailbranchid"]] == 9999999] = NA
+    clean_trajectory[["tripid"]][clean_trajectory[["tripid"]] == 9999999] = NA
+    clean_trajectory[["vehicleid"]][clean_trajectory[["vehicleid"]] == 9999999] = NA
     # transfer trxtime to timestamp
     options(tz = "America/New_York")
     clean_trajectory$time = as.POSIXct(clean_trajectory$trxtime,tz = getOption("tz"))
@@ -132,8 +136,8 @@ case_5 = function(clean_trajectory){
     clean_trajectory = compute_speed_acceleration(clean_trajectory)
     clean_trajectory = compute_cumulative_time_distance(clean_trajectory)
     # Remove outlier speed observations
-    clean_trajectory = clean_trajectory[speed_kph < 120]
-    clean_trajectory = clean_trajectory[accel_mps2 > -6 & accel_mps2 < 6 ]
+    clean_trajectory = clean_trajectory[speed_kph < 170]
+    clean_trajectory = clean_trajectory[accel_mps2 > -6 & accel_mps2 < 6]
     return(clean_trajectory)   
 }
 
@@ -169,8 +173,10 @@ main = function(YEARLIST, MONTHLIST) {
         for (m in MONTHLIST) {
             df_light = get_light_rail_trajectories(y, m)
             df_light = preprocess_data( df_light)
-            df_light = process_month_trajectory( df_light)  
-            write.csv(x = results_df, file.path("../../data/tidy/", paste("green", "trajectory", yy, mm, ".csv", sep = "-", collapse = "")))
+            df_light = process_month_trajectory( df_light) 
+            write.csv(x = df_light, 
+                      file.path("../../data/tidy", 
+                                paste(paste("heavy", "trajectory", y, m, sep = "-", collapse = ""), ".csv", sep="")))
         }
     }
 }
