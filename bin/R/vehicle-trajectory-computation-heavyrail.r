@@ -23,7 +23,9 @@ add_dd_mm_yy_cols = function(df) {
 }
 # Read light rail location raw data
 get_heavy_rail_trajectories = function(year, month){
-    assign("dh", fread(paste(DISTANCE_FILEPATH, paste("heavyrail", "trajectories", month, year, ".csv", sep = "-", collapse = ""), sep="")))
+    assign("dh", fread(paste(DISTANCE_FILEPATH, paste("heavyrail", "trajectories", month, year, sep = "-", collapse = ""),  ".csv", sep="")))
+    #JO: @Zhuo - edit your filenames to use the formulation above (remove trailing hyphen)
+    #assign("dh", fread(paste(DISTANCE_FILEPATH, paste("heavyrail", "trajectories", month, year, ".csv", sep = "-", collapse = ""), sep="")))
     dh = add_dd_mm_yy_cols(dh)
     return(dh)
 }
@@ -164,14 +166,15 @@ process_month_trajectory = function(data){
     for(i in unique(data$day)) { 
         day_df = compute_day_trajectories(data, i)       
         results_df <- rbind(results_df, day_df)
-        }
- }
+    }
+    return (results_df)
+}
 
 # Generate the final table
 main = function(YEARLIST, MONTHLIST) {
     for (y in YEARLIST) {
         for (m in MONTHLIST) {
-            df_light = get_light_rail_trajectories(y, m)
+            df_light = get_heavy_rail_trajectories(y, m)
             df_light = preprocess_data( df_light)
             df_light = process_month_trajectory( df_light) 
             write.csv(x = df_light, 
