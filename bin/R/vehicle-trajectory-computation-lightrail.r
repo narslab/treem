@@ -162,9 +162,7 @@ process_month_trajectory = function(data){
         day_df = compute_day_trajectories(data, i)       
         results_df <- rbind(results_df, day_df)
     }
-    # change to your path
-     write.csv(x = results_df, 
-               file.path("../../data/tidy/", paste("green", "trajectory", yy, mm, ".csv", sep = "-", collapse = "")))
+    return (results_df)
  }
 
 # Generate the final table
@@ -173,7 +171,12 @@ main = function(year_l, month_l) {
         for (m in month_l) {
             df_light = get_light_rail_trajectories(y, m)
             df_light = preprocess_data( df_light)
-            df_light = process_month_trajectory(df_light)           
+            df_light = process_month_trajectory(df_light)
+            # change to your path
+            write.csv(x = df_light, 
+                      file.path("../../data/tidy", 
+                                paste(paste("green", "trajectory", y, m, sep = "-", collapse = ""), ".csv", sep="")))
+            
         }
     }
 }
