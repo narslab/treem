@@ -139,7 +139,7 @@ case_5 = function(clean_trajectory){
     clean_trajectory = compute_cumulative_time_distance(clean_trajectory)
     # Remove outlier speed observations
     clean_trajectory = clean_trajectory[speed_kph < 170]
-    clean_trajectory = clean_trajectory[accel_mps2 > -6 & accel_mps2 < 6]
+    clean_trajectory = clean_trajectory[accel_mps2 > -5 & accel_mps2 < 5]
     return(clean_trajectory)   
 }
 

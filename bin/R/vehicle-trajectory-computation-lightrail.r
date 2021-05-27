@@ -61,7 +61,7 @@ extract_unique_trajectory = function(day_df, traj_index_df, index){
     traj_index_df[["car3"]][is.na(traj_index_df[["car3"]])] <- 9999999
     trajectory = day_df[trainid == traj_index_df[index, 1][[1]] & 
                         vehicleid == traj_index_df[index, 2][[1]] &
-                        routeid == traj_index_df[index, 3][[1]] &
+                        # routeid == traj_index_df[index, 3][[1]] &
                         car1 == traj_index_df[index, 4][[1]] &
                         car2 == traj_index_df[index, 5][[1]] &
                         car3 == traj_index_df[index, 6][[1]],][order(trxtime)]
@@ -134,7 +134,7 @@ compute_unique_trajectory = function(clean_trajectory){
     clean_trajectory = compute_cumulative_time_distance(clean_trajectory)
     # Remove outlier speed observations
     clean_trajectory = clean_trajectory[speed_kph < 120]
-    clean_trajectory = clean_trajectory[accel_mps2 > -6 & accel_mps2 < 6 ]
+    clean_trajectory = clean_trajectory[accel_mps2 > -5 & accel_mps2 < 5 ]
     return(clean_trajectory)   
 }
 
