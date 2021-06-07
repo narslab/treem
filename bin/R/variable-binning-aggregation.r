@@ -18,7 +18,7 @@ MONTHLIST = c("04","06")
 DISTANCE_FILEPATH = "../../data/tidy/vehicle-trajectory-computation/"
 COMPUTATION_FILEPATH = "../../data/tidy/"
 energy_df = fread("../../data/raw/energy-consumption-08-20.csv") # Read in energy data
-d_ridership = fread("../../data/raw/ridership-2019-2020-.csv")# Read in ridership data
+d_ridership = fread("../../data/raw/ridership-2019-2020.csv")# Read in ridership data
 
 # aggregrate_trajectory_table
 line_aggregation = function(year,month){
@@ -185,7 +185,7 @@ main <- function (num_bins,energy_df,d_ridership,YEARLIST,MONTHLIST) {
              # merge with ridership
              merge_ridership = merge_ridership(interval_agg,d_ridership,y,m)
              merge_final= merge_energy(energy_df, merge_ridership,y,m)
-             write.csv(merge_final,file.path(paste0(COMPUTATION_FILEPATH, paste(paste("green", "trajectory", "aggregation" , year, month, sep = "-", collapse = ""), ".csv", sep=""))))
+             write.csv(merge_final,file.path(paste0(COMPUTATION_FILEPATH, paste(paste("green", "trajectory", "aggregation" , y, m, sep = "-", collapse = ""), ".csv", sep=""))))
             }
         }
    
