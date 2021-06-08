@@ -7,11 +7,7 @@ library(scales)
 library(stringr)
 library(tidyr) # spread function
 
-# adjust the R limit
 memory.limit(size=900000)
-#library(tidyverse)
-
-getwd()
 # Select the month you want to investigate
 YEARLIST =("19")
 MONTHLIST = c("04","06")
@@ -25,8 +21,8 @@ line_aggregation = function(year,month){
     assign("dg",fread(paste0(DISTANCE_FILEPATH, paste(paste("green", "trajectory", year, month, sep = "-", collapse = ""), ".csv", sep=""))))
     assign("dh",fread(paste0(DISTANCE_FILEPATH, paste(paste("heavy", "trajectory", year, month, sep = "-", collapse = ""), ".csv", sep=""))))
     dg$lineid = 4
-    dg = subset(dg, select = c(trxtime, lineid, lat, lon , speed_kph , accel_mps2 , interval_seconds , dist_meters , vehicleid))
-    dh = subset(dh, select = c(trxtime, lineid, lat, lon , speed_kph , accel_mps2 , interval_seconds , dist_meters , vehicleid))
+    dg = subset(dg, select = c(trxtime, year, month, day, lineid, lat, lon , speed_kph , accel_mps2 , interval_seconds , dist_meters , vehicleid))
+    dh = subset(dh, select = c(trxtime, year, month, day, lineid, lat, lon , speed_kph , accel_mps2 , interval_seconds , dist_meters , vehicleid))
     df = rbind(dg, dh) 
     return(df)
 }
@@ -37,9 +33,6 @@ unit_transfer = function(df){
    df$speed_mph = df$speed_kph*0.621371 #kph to mph
    df$distance_mile = df$dist_meters*0.000621371 #convert from meters to mile
    df$time_hr = df$interval_seconds/3600.0 #convert from seconds to hour
-   df$month = month(df$trxtime)
-   df$day = day(df$trxtime)
-   df$year = year(df$trxtime) 
   return(df)
 }    
 
@@ -129,8 +122,8 @@ hour_aggregate <- function (dataframe,num_bins) {
     interaction_name = outer(speed_name,accel_name, paste, sep="")
     # aggregate by hour
     sum_cols = c("distance_mile","time_hr",paste0("speed_bin_",1:num_bins,"_time_hr"),paste0("accel_bin_",1:num_bins,"_time_hr"),interaction_name)
-    agg_df = dataframe[, lapply( .SD, sum , na.rm=TRUE), by = c("month",'hour',"day"), .SDcols = sum_cols]
-    avg_interval_speed_mph_df = dataframe[, lapply( .SD, mean , na.rm=TRUE), by = c("month","hour","day"), .SDcols = 'speed_mph']
+    agg_df = dataframe[, lapply( .SD, sum , na.rm=TRUE), by = c("year","month",'hour',"day"), .SDcols = sum_cols]
+    avg_interval_speed_mph_df = dataframe[, lapply( .SD, mean , na.rm=TRUE), by = c("year","month","hour","day"), .SDcols = 'speed_mph']
     agg_df[, 'avg_interval_speed_mph'] = avg_interval_speed_mph_df$speed_mph
     agg_df[, 'avg_hour_speed_mph'] = agg_df$distance_mile/agg_df$time_hr
     merged_agg_df = merge(agg_d_num_trains_wide,agg_df,all=T) 
@@ -138,26 +131,20 @@ hour_aggregate <- function (dataframe,num_bins) {
 }
 
 # Combine ridership data
-merge_ridership = function(merged_dt,d_ridership,YEAR,MONTH){
-   d_ridership$route_or_line = as.character(d_ridership$route_or_line)
-   d_ridership$route_or_line[which(d_ridership$route_or_line == "Green Line")] = "4"
-   d_ridership$route_or_line[which(d_ridership$route_or_line == "Red Line")] = "1"
-   d_ridership$route_or_line[which(d_ridership$route_or_line == "Blue Line")] = "2"
-   d_ridership$route_or_line[which(d_ridership$route_or_line == "Orange Line")] = "3"
+merge_ridership = function(merged_dt,d_ridership){
+   merged_dt$year = as.character(merged_dt$year)
    d_ridership$year = as.character(year(d_ridership$servicedate))
    d_ridership$month = as.character(month(d_ridership$servicedate))
    d_ridership$day = as.character(day(d_ridership$servicedate))
    d_ridership$hour = as.character(hour(d_ridership$halfhour))
-   d_ridership = aggregate(d_ridership$rawtaps_split, list(year = d_ridership$year, month = d_ridership$month, day = d_ridership$day, hour = d_ridership$hour), FUN = sum)
-   names(d_ridership)[names(d_ridership) == 'x'] <- 'ridership'
-   d_ridership = subset(d_ridership,year == YEAR & month == MONTH)
-   merged_db = merge(merged_dt,d_ridership,by = c("month","day","hour"),all=T) 
+   d_ridership = d_ridership[,sum(rawtaps_split),by = .(year, month, day,hour)] 
+   names(d_ridership)[names(d_ridership) == 'V1'] <- 'ridership'
+   merged_db = merge(merged_dt,d_ridership,by = c("year","month","day","hour"),all=F) 
    return(merged_db)
 }
 
 # Combine energy consumption data
-merge_energy <- function (energy_df,hour_dt,YEAR,MONTH) {
-    energy_df = subset(energy_df,energy_df$Year == YEAR & energy_df$Month == MONTH)
+merge_energy <- function (energy_df,hour_dt) {
     # Melt by hour 
     melted_energy_df = melt(energy_df, id.vars=c('Year','Month','Day of Month','WJ','TAVG'), measure.vars = paste0("Hour ",1:24))
         colnames(melted_energy_df) = c('year', 'month', 'day', 'weekends', 'TAVG', 'Hour', 'energy_MWh')
@@ -170,11 +157,9 @@ merge_energy <- function (energy_df,hour_dt,YEAR,MONTH) {
     hour_energy_dt$month = as.character(hour_energy_dt$month)
     hour_energy_dt$day = as.character(hour_energy_dt$day)
     hour_energy_dt$hour = as.character(hour_energy_dt$hour)
-    merged_dt = merge(hour_dt,hour_energy_dt,by = c("year","month","day","hour") , all = T)
+    merged_dt = merge(hour_dt,hour_energy_dt,by = c("year","month","day","hour") , all = F)
     return(merged_dt)
 }
-
-
 
 main <- function (num_bins,energy_df,d_ridership,YEARLIST,MONTHLIST) {
     for (y in YEARLIST) {
@@ -183,13 +168,13 @@ main <- function (num_bins,energy_df,d_ridership,YEARLIST,MONTHLIST) {
              interval_agg <- interval_df %>% unit_transfer() %>% bin_speeds(num_bins) %>% 
              bin_accelerations(num_bins) %>% bin_interaction_terms(num_bins) %>% hour_aggregate(num_bins)
              # merge with ridership
-             merge_ridership = merge_ridership(interval_agg,d_ridership,y,m)
-             merge_final= merge_energy(energy_df, merge_ridership,y,m)
-             write.csv(merge_final,file.path(paste0(COMPUTATION_FILEPATH, paste(paste("green", "trajectory", "aggregation" , y, m, sep = "-", collapse = ""), ".csv", sep=""))))
+             merge_ridership = merge_ridership(interval_agg,d_ridership)
+             # merge with energy table
+             merge_energy = merge_energy(energy_df, merge_ridership)
+             write.csv(merge_energy,file.path(paste0(COMPUTATION_FILEPATH, paste(paste("green", "trajectory", "aggregation" , y , m , sep = "-", collapse = ""), ".csv", sep=""))))
             }
-        }
+      }
    
 }
 
 main(8,energy_df,d_ridership,YEARLIST,MONTHLIST)
-
