@@ -37,7 +37,8 @@ unit_transfer = function(df){
 }    
 
 # Calculate the speed bins 
-bin_speeds <- function (dataframe, num_bins) {
+bin_speeds <- function (dataframe, num_bins, test = FALSE) {
+  print("Computing speed bins")
   dataframe = data.table(dataframe)
   dummy_cols = c(paste0("speed_bin_",1:num_bins,"_dummy"))
   bin_time_cols = c(paste0("speed_bin_",1:num_bins,"_time_hr"))
@@ -55,18 +56,22 @@ bin_speeds <- function (dataframe, num_bins) {
     }
   }
  dataframe[, (bin_time_cols) := lapply(.SD, function(x) x * dataframe$time_hr ), .SDcols = dummy_cols]
- print(paste0("Percentage error of summed speed bin times = ", 
+ if (test) {
+    print(paste0("Percentage error of summed speed bin times = ", 
               round(100*(sum(colSums(dataframe %>% select(starts_with("speed_bin_") & ends_with("_time_hr")),na.rm=TRUE)) 
                          - sum(dataframe$time_hr, na.rm=TRUE))/sum(dataframe$time_hr, na.rm=TRUE),2), "%"))
+ }
+ print("Done")
  return(dataframe) 
 }
 
 # Calculate the acceleration bins 
-bin_accelerations <- function (dataframe, num_bins) {
+bin_accelerations <- function (dataframe, num_bins, test = FALSE) {
+  print("Computing acceleration bins")
   dataframe = data.table(dataframe)
   dummy_cols = c(paste0("accel_bin_",1:num_bins,"_dummy"))
   bin_time_cols = c(paste0("accel_bin_",1:num_bins,"_time_hr"))
-  cutpoints <- quantile(dataframe$accel_mps2,seq(0, 1, 1/num_bins),na.rm=TRUE) 
+  cutpoints <- quantile(dataframe$accel_mps2,seq(0, 1, 1/num_bins),na.rm=TRUE) #read in the list from a saved file of cutpoints
   print(paste0("The acceleration bins are: ", cutpoints))
   for(n in seq(1, num_bins)) {
     if(n == 1){
@@ -80,9 +85,12 @@ bin_accelerations <- function (dataframe, num_bins) {
     }
   }
   dataframe[, (bin_time_cols) := lapply(.SD, function(x) x * dataframe$time_hr ), .SDcols = dummy_cols]
-  print(paste0("Percentage error of summed acceleration bin times = ", 
+  if (test) {
+      print(paste0("Percentage error of summed acceleration bin times = ", 
                round(100*(sum(colSums(dataframe %>% select(starts_with("accel_bin_") & ends_with("_time_hr")),na.rm=TRUE)) 
                           - sum(dataframe$time_hr, na.rm=TRUE))/sum(dataframe$time_hr, na.rm=TRUE),2), "%"))                                                  
+  }
+  print("Done")
   return(dataframe)
 }
 
@@ -96,32 +104,33 @@ bin_interaction_terms = function(df, num_speed_bins, num_accel_bins){
         for (j in seq(1, num_accel_bins)){
             # add interaction dummy variables
             accel_dummy = paste0("accel_bin_", j, "_dummy") 
-            dummy_interaction_col = paste0(speed_dummy, "_", accel_dummy)
+            dummy_interaction_col = paste0("speed_bin_", i, "_", "accel_bin_", j)
             dummy_interaction_cols = c(dummy_interaction_cols, dummy_interaction_col) #update list of interaction columns
             set(df, j = dummy_interaction_col, value = df$speed_dummy * df$accel_dummy)
         }
     }
     df[, paste0(dummy_interaction_cols, "_time_hr") := lapply(.SD, function(x) x * df$time_hr ), .SDcols = dummy_interaction_cols]
+    print("Done")
     return(df)
 }
 
 # Aggregate dataframe at hour level
-hour_aggregate <- function (dataframe,num_bins) {
+hour_aggregate <- function (dataframe, num_speed_bins, num_accel_bins) {
     print("Aggregating observations by hour")
-    dataframe = data.table(dataframe)
+    #dataframe = data.table(dataframe)
     dataframe$month = as.character(dataframe$month)
     dataframe$hour = as.character(dataframe$hour)
     dataframe$day = as.character(dataframe$day)
-    # create another data table to summary the number of trains running in each hour
+    # create another data table to summarize the number of trains running in each hour
     d_num_trains <- dataframe[, c("month",'hour',"day","lineid","vehicleid")]
     agg_d_num_trains = d_num_trains[, .(count = length(unique(vehicleid))), by = .(month,day,hour,lineid)]
     agg_d_num_trains_wide = spread(agg_d_num_trains, lineid,count)
    # interaction term name preparation for aggregating by hour
-    speed_name = paste0("speed_bin_",1:num_bins)
-    accel_name = paste0("_","accel_bin_",1:num_bins,"_time_hr")
+    speed_name = paste0("speed_bin_", 1:num_speed_bins)
+    accel_name = paste0("_","accel_bin_", 1:num_accel_bins,"_time_hr")
     interaction_name = outer(speed_name,accel_name, paste, sep="")
     # aggregate by hour
-    sum_cols = c("distance_mile","time_hr",paste0("speed_bin_",1:num_bins,"_time_hr"),paste0("accel_bin_",1:num_bins,"_time_hr"),interaction_name)
+    sum_cols = c("distance_mile","time_hr",paste0("speed_bin_",1:num_speed_bins,"_time_hr"), paste0("accel_bin_", 1:num_accel_bins,"_time_hr"), interaction_name)
     agg_df = dataframe[, lapply( .SD, sum , na.rm=TRUE), by = c("year","month",'hour',"day"), .SDcols = sum_cols]
     avg_interval_speed_mph_df = dataframe[, lapply( .SD, mean , na.rm=TRUE), by = c("year","month","hour","day"), .SDcols = 'speed_mph']
     agg_df[, 'avg_interval_speed_mph'] = avg_interval_speed_mph_df$speed_mph
@@ -163,12 +172,12 @@ merge_energy <- function (energy_df,hour_dt) {
     return(merged_dt)
 }
 
-main <- function (num_bins,energy_df,d_ridership,YEARLIST,MONTHLIST) {
+main <- function (num_speed_bins, num_accel_bins, energy_df,d_ridership,YEARLIST,MONTHLIST) {
     for (y in YEARLIST) {
         for (m in MONTHLIST) {
              interval_df = line_aggregation(y,m)
-             interval_agg <- interval_df %>% unit_transfer() %>% bin_speeds(num_bins) %>% 
-             bin_accelerations(num_bins) %>% bin_interaction_terms(num_bins) %>% hour_aggregate(num_bins)
+             interval_agg <- interval_df %>% unit_transfer() %>% bin_speeds(num_speed_bins) %>% 
+             bin_accelerations(num_accel_bins) %>% bin_interaction_terms(num_speed_bins, num_accel_bins) %>% hour_aggregate(num_speed_bins, num_accel_bins)
              # merge with ridership
              merge_ridership = merge_ridership(interval_agg,d_ridership)
              # merge with energy table
@@ -180,5 +189,5 @@ main <- function (num_bins,energy_df,d_ridership,YEARLIST,MONTHLIST) {
 }
 
 ptm <- proc.time()
-main(6, energy_df, d_ridership, YEARLIST, MONTHLIST)
+main(6, 6, energy_df, d_ridership, YEARLIST, MONTHLIST)
 proc.time() - ptm
