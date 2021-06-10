@@ -106,7 +106,7 @@ bin_interaction_terms = function(df, num_speed_bins, num_accel_bins){
             accel_dummy = paste0("accel_bin_", j, "_dummy") 
             dummy_interaction_col = paste0("speed_bin_", i, "_", "accel_bin_", j)
             dummy_interaction_cols = c(dummy_interaction_cols, dummy_interaction_col) #update list of interaction columns
-            set(df, j = dummy_interaction_col, value = df$speed_dummy * df$accel_dummy)
+            set(df, j = dummy_interaction_col, value = df[[speed_dummy]]*df[[accel_dummy]])
         }
     }
     df[, paste0(dummy_interaction_cols, "_time_hr") := lapply(.SD, function(x) x * df$time_hr ), .SDcols = dummy_interaction_cols]
