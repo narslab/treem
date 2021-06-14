@@ -30,6 +30,8 @@ sample_day_trajectories = function(year, month, num_sample_days, seed_val){
     DT = rbind(dg, dh) 
     if (any(list("04", "06", "09", "11") %like% month)) { #for efficiency filter for months with 30 days
         num_days = 30
+    } else if (month == "02") { # february
+        num_days = 28 
     } else {
         num_days = 31
     }

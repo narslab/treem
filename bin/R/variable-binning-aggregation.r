@@ -9,12 +9,16 @@ library(tidyr) # spread function
 
 #memory.limit(size=900000) #Windows-specific #JO
 # Select the month you want to investigate
-YEARLIST =("19")
-MONTHLIST = c("12")
+YEARLIST = c("19", "20")
+MONTHLIST = c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
 DISTANCE_FILEPATH = "../../data/tidy/vehicle-trajectory-computation/"
 COMPUTATION_FILEPATH = "../../data/tidy/"
 energy_df = fread("../../data/raw/energy-consumption-08-20.csv") # Read in energy data
 d_ridership = fread("../../data/raw/ridership-2019-2020.csv")# Read in ridership data
+NUM_SPEED_BINS = 6
+NUM_ACCEL_BINS = 6
+SPEED_CUTS = data.frame(read.csv(paste0("../../data/tidy/speed-19-cutpoints-bins-", NUM_SPEED_BINS, ".csv")))$cutpoints
+ACCEL_CUTS = data.frame(read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-bins-", NUM_ACCEL_BINS, ".csv")))$cutpoints
 
 # aggregrate_trajectory_table
 line_aggregation = function(year,month){
@@ -24,6 +28,8 @@ line_aggregation = function(year,month){
     dg = subset(dg, select = c(trxtime, year, month, day, lineid, lat, lon , speed_kph , accel_mps2 , interval_seconds , dist_meters , vehicleid))
     dh = subset(dh, select = c(trxtime, year, month, day, lineid, lat, lon , speed_kph , accel_mps2 , interval_seconds , dist_meters , vehicleid))
     df = rbind(dg, dh) 
+    remove(dg)
+    remove(dh)
     return(df)
 }
 
@@ -38,12 +44,13 @@ unit_transfer = function(df){
 
 # Calculate the speed bins 
 bin_speeds <- function (dataframe, num_bins, test = FALSE) {
-  print("Computing speed bins")
-  dataframe = data.table(dataframe)
   dummy_cols = c(paste0("speed_bin_",1:num_bins,"_dummy"))
   bin_time_cols = c(paste0("speed_bin_",1:num_bins,"_time_hr"))
-  cutpoints <- quantile(dataframe$speed_mph,seq(0, 1, 1/num_bins),na.rm=TRUE) 
-  print(paste0("The speed bins are: ", cutpoints))
+  #cutpoints <- quantile(dataframe$speed_mph,seq(0, 1, 1/num_bins),na.rm=TRUE) 
+  print("Reading speed bins")
+  cutpoints = SPEED_CUTS
+  print("The speed bins are:")
+  print(round(cutpoints,2))
   for(n in seq(1, num_bins)) {
     if(n == 1){
      dataframe[, dummy_cols[n] := sapply(speed_mph,  function(x) ifelse (x < cutpoints[n+1], 1, 0))]
@@ -67,31 +74,31 @@ bin_speeds <- function (dataframe, num_bins, test = FALSE) {
 
 # Calculate the acceleration bins 
 bin_accelerations <- function (dataframe, num_bins, test = FALSE) {
-  print("Computing acceleration bins")
-  dataframe = data.table(dataframe)
-  dummy_cols = c(paste0("accel_bin_",1:num_bins,"_dummy"))
-  bin_time_cols = c(paste0("accel_bin_",1:num_bins,"_time_hr"))
-  cutpoints <- quantile(dataframe$accel_mps2,seq(0, 1, 1/num_bins),na.rm=TRUE) #read in the list from a saved file of cutpoints
-  print(paste0("The acceleration bins are: ", cutpoints))
-  for(n in seq(1, num_bins)) {
-    if(n == 1){
-      dataframe[, dummy_cols[n] := sapply(accel_mps2,  function(x) ifelse (x < cutpoints[n+1], 1, 0))]
+    dummy_cols = c(paste0("accel_bin_",1:num_bins,"_dummy"))
+    bin_time_cols = c(paste0("accel_bin_",1:num_bins,"_time_hr"))
+    print("Reading acceleration bins")
+    cutpoints = ACCEL_CUTS 
+    print("The acceleration bins are:")
+    print(round(cutpoints,2))    
+    for(n in seq(1, num_bins)) {
+      if(n == 1){
+        dataframe[, dummy_cols[n] := sapply(accel_mps2,  function(x) ifelse (x < cutpoints[n+1], 1, 0))]
     }
     else if (n == num_bins){
-      dataframe[, dummy_cols[n] := sapply(accel_mps2,  function(x) ifelse (x >= cutpoints[num_bins], 1, 0))]
+        dataframe[, dummy_cols[n] := sapply(accel_mps2,  function(x) ifelse (x >= cutpoints[num_bins], 1, 0))]
     }
     else {
-      dataframe[, dummy_cols[n] := sapply(accel_mps2,  function(x) ifelse (x >= cutpoints[n] & x < cutpoints[n + 1], 1, 0))]
+        dataframe[, dummy_cols[n] := sapply(accel_mps2,  function(x) ifelse (x >= cutpoints[n] & x < cutpoints[n + 1], 1, 0))]
+        }
     }
-  }
-  dataframe[, (bin_time_cols) := lapply(.SD, function(x) x * dataframe$time_hr ), .SDcols = dummy_cols]
-  if (test) {
-      print(paste0("Percentage error of summed acceleration bin times = ", 
-               round(100*(sum(colSums(dataframe %>% select(starts_with("accel_bin_") & ends_with("_time_hr")),na.rm=TRUE)) 
-                          - sum(dataframe$time_hr, na.rm=TRUE))/sum(dataframe$time_hr, na.rm=TRUE),2), "%"))                                                  
-  }
-  print("Done")
-  return(dataframe)
+    dataframe[, (bin_time_cols) := lapply(.SD, function(x) x * dataframe$time_hr ), .SDcols = dummy_cols]
+    if (test) {
+        print(paste0("Percentage error of summed acceleration bin times = ", 
+                 round(100*(sum(colSums(dataframe %>% select(starts_with("accel_bin_") & ends_with("_time_hr")),na.rm=TRUE)) 
+                            - sum(dataframe$time_hr, na.rm=TRUE))/sum(dataframe$time_hr, na.rm=TRUE),2), "%"))                                                  
+    }
+    print("Done")
+    return(dataframe)
 }
 
 # add speed-acceleration bin interaction terms
@@ -172,10 +179,10 @@ merge_energy <- function (energy_df,hour_dt) {
     return(merged_dt)
 }
 
-main <- function (num_speed_bins, num_accel_bins, energy_df,d_ridership,YEARLIST,MONTHLIST) {
-    for (y in YEARLIST) {
-        for (m in MONTHLIST) {
-             interval_df = line_aggregation(y,m)
+main <- function (num_speed_bins, num_accel_bins, energy_df,d_ridership, year_list, month_list) {
+    for (y in year_list) {
+        for (m in month_list) {
+             interval_df = line_aggregation(y, m)
              interval_agg <- interval_df %>% unit_transfer() %>% bin_speeds(num_speed_bins) %>% 
              bin_accelerations(num_accel_bins) %>% bin_interaction_terms(num_speed_bins, num_accel_bins) %>% hour_aggregate(num_speed_bins, num_accel_bins)
              # merge with ridership
@@ -185,9 +192,6 @@ main <- function (num_speed_bins, num_accel_bins, energy_df,d_ridership,YEARLIST
              write.csv(merge_energy,file.path(paste0(COMPUTATION_FILEPATH, paste(paste("trajectory", "aggregation" , y , m , sep = "-", collapse = ""), ".csv", sep=""))))
             }
       }
-   
 }
 
-ptm <- proc.time()
-main(6, 6, energy_df, d_ridership, YEARLIST, MONTHLIST)
-proc.time() - ptm
+main(NUM_SPEED_BINS, NUM_ACCEL_BINS, energy_df, d_ridership, YEARLIST, MONTHLIST)
