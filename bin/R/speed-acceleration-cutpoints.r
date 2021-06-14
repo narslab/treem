@@ -14,7 +14,7 @@ MONTHLIST = c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", 
 DISTANCE_FILEPATH = "../../data/tidy/vehicle-trajectory-computation/"
 COMPUTATION_FILEPATH = "../../data/tidy/"
 
-NUM_DAYS = 10
+NUM_SAMPLE_DAYS = 10
 NUM_SPEED_BINS = 6
 NUM_ACCEL_BINS = 6
 
@@ -38,7 +38,8 @@ sample_day_trajectories = function(year, month, num_sample_days, seed_val){
     day_subset = sample(seq(num_days), num_sample_days)
     setkey(DT, day)
     DT = DT[day %in% day_subset]
-    print(paste("Year:", year, "; Month:", month, "; Days sampled:", unique(DT$day)))
+    print(paste("Year:", year, "; Month:", month, "; Days sampled:"))
+    print(unique(DT$day))
     remove(dg)
     remove(dh)
     return(DT)
@@ -73,13 +74,13 @@ get_acceleration_cutpoints <- function (DT, num_bins, test = FALSE) {
     return(df)
 }
 
-main <- function (num_speed_bins, num_accel_bins, num_days, year_list, month_list) {
+main <- function (num_speed_bins, num_accel_bins, num_days_to_sample, year_list, month_list) {
     DT = data.table()
     SEEDLIST = c(111, 222, 333, 444, 555, 666, 777, 888, 999, 101010, 111111, 121212) #different seed for each month
     seed_counter = 1
     for (y in year_list) {
         for (m in month_list) {
-            interval_DT = sample_day_trajectories(y, m, num_days, SEEDLIST[seed_counter])
+            interval_DT = sample_day_trajectories(y, m, num_days_to_sample, SEEDLIST[seed_counter])
             DT = rbindlist( list(DT, interval_DT) ) # obtain sampled df from all observations
             seed_counter = seed_counter + 1
             remove(interval_DT)
@@ -93,4 +94,4 @@ main <- function (num_speed_bins, num_accel_bins, num_days, year_list, month_lis
     remove(DT)
 }
 
-main(NUM_SPEED_BINS, NUM_ACCEL_BINS, NUM_DAYS, YEARLIST, MONTHLIST)
+main(NUM_SPEED_BINS, NUM_ACCEL_BINS, NUM_SAMPLE_DAYS, YEARLIST, MONTHLIST)
