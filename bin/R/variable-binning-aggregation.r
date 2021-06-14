@@ -10,7 +10,7 @@ library(tidyr) # spread function
 #memory.limit(size=900000) #Windows-specific #JO
 # Select the month you want to investigate
 YEARLIST =("19")
-MONTHLIST = c("06")
+MONTHLIST = c("12")
 DISTANCE_FILEPATH = "../../data/tidy/vehicle-trajectory-computation/"
 COMPUTATION_FILEPATH = "../../data/tidy/"
 energy_df = fread("../../data/raw/energy-consumption-08-20.csv") # Read in energy data
