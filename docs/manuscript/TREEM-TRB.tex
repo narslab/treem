@@ -1,0 +1,324 @@
+% Transportation Research Board conference paper template
+% version 1.1
+% 
+% David R. Pritchard, http://davidpritchard.org
+%   1.0 - Mar. 2009
+%   1.1 - Sep. 2011, fixes for captions
+
+% PAGE LAYOUT
+%------------------------------------------
+
+% Custom paper settings...
+\documentclass[titlepage,oneside,12pt]{article}
+
+\oddsidemargin 0.0in
+\topmargin -0.5in
+\headheight 0.3in
+\headsep 0.2in
+\textwidth 6.5in
+\textheight 9.0in
+\setlength{\parindent}{0.5in}
+
+\usepackage{hyperref}
+
+% PAGE HEADER
+%------------------------------------------
+% Adjust the header text below (INSERT AUTHORS HERE)
+\oddsidemargin 0.0in
+\usepackage{lscape}
+\usepackage[tiny,rm]{titlesec}
+\usepackage{titling}
+\usepackage{xcolor}
+\newpagestyle{trbstyle}{
+	\sethead{Apostolov and Oke}{}{\thepage}
+}
+\pagestyle{trbstyle}
+
+% HEADINGS
+%------------------------------------------
+\titleformat{\section}{\bfseries}{}{0pt}{\uppercase}
+\titlespacing*{\section}{0pt}{12pt}{*0}
+\titleformat{\subsection}{\bfseries}{}{0pt}{}
+\titlespacing*{\subsection}{0pt}{12pt}{*0}
+\titleformat{\subsubsection}{\itshape}{}{0pt}{}
+\titlespacing*{\subsubsection}{0pt}{12pt}{*0}
+
+% LISTS
+%------------------------------------------
+% Adjust lists a little. Not quite perfectly fitting TRB style, but vaguely
+% close at least.
+%\usepackage{enumitem}
+%\setlist[1]{labelindent=0.5in,leftmargin=*}
+%\setlist[2]{labelindent=0in,leftmargin=*}
+
+\usepackage{booktabs}
+% CAPTIONS
+%------------------------------------------
+% Get the captions right. Authors must still be careful to use "Title Case"
+% for table captions, and "Sentence case." for figure captions.
+\usepackage{ccaption}
+\usepackage{amsmath}
+\makeatletter
+\renewcommand{\fnum@figure}{\textbf{FIGURE~\thefigure} }
+\renewcommand{\fnum@table}{\textbf{TABLE~\thetable} }
+\makeatother
+\captiontitlefont{\bfseries \boldmath}
+\captiondelim{\;}
+%\precaption{\boldmath}
+
+% FONTS
+%------------------------------------------
+% Three options for fonts. I prefer Times for text and Computer Modern for
+% math.
+
+% Times for text, Computer Modern for math
+\usepackage{times}
+% Times for text and math
+%\usepackage{pslatex}
+% Times for text and math
+%\usepackage{times,mathptmx} 
+
+% Some pdf conversion tricks? Unsure.
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{bm}
+\usepackage{makecell}
+\usepackage{subfig}
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;}
+
+% CITATIONS
+%------------------------------------------
+% TRB uses an Author (num) citation style. I haven't found a way to make
+% LaTeX/Bibtex do this automatically using the standard \trbcite macro, but
+% this modified \trbcite macro does the trick.
+
+% TODO: sort&compress option?
+\usepackage[sort,numbers]{natbib}
+\newcommand{\trbcite}[1]{({\it \citenum{#1}})}
+\newcommand{\trbcitet}[1]{\citeauthor{#1} ({\it \citenum{#1}})}
+
+\setcitestyle{round}
+
+%% Cite Title
+%\usepackage[style=authoryear,backend=biber,natbib,maxcitenames=2,doi=false,isbn=false,url=false,eprint=false]{biblatex}
+%\addbibresource{bib/references.bib}
+
+%\usepackage{hyperref}
+
+% LINE NUMBERING
+%------------------------------------------
+% TRB likes line numbers on drafts to help reviewers refer to parts of the
+% document. Comment out for final versions.
+\usepackage{lineno}
+\renewcommand\linenumberfont{\normalfont\small}
+\linenumbers
+
+
+% COUNTERS
+%------------------------------------------
+% TRB requires the total number of words, figures, and tables to be displayed on
+% the title page. This is possible under the totcount package on CTAN.
+\usepackage{totcount}
+	\regtotcounter{table} 	%count tables
+	\regtotcounter{figure} 	%count figures
+
+\newcommand\wordcount{\immediate\write18{texcount -sum -1 \jobname.tex > 'count.txt'} \input{count.txt} }
+  
+% DOCUMENT START
+%------------------------------------------
+% Add any additional \usepackage declarations here.
+
+\usepackage{graphicx}
+\graphicspath{{./images/}}
+ 
+\usepackage{rotating}
+\usepackage{longtable}
+
+%\usepackage{enumerate}
+\usepackage{paralist}
+
+%%%TIKZ
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{pgfgantt}
+\pgfplotsset{compat=newest}
+
+\usetikzlibrary{arrows,shapes,positioning,shapes.geometric}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{shadows,automata}
+\usetikzlibrary{patterns}
+\usetikzlibrary{trees,mindmap,backgrounds}
+%\usetikzlibrary{circuits.ee.IEC}
+\usetikzlibrary{decorations.text}
+% For Sagnac Picture
+\usetikzlibrary{%
+    decorations.pathreplacing,%
+    decorations.pathmorphing%
+}
+\tikzset{no shadows/.style={general shadow/.style=}}
+%
+%\usepackage{paralist}
+
+%%% FORMAT PYTHON CODE
+\usepackage{listings}
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{8} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{8}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+\newcommand{\osn}{\oldstylenums}
+\newcommand{\dg}{^{\circ}}
+\newcommand{\lt}{\left}
+\newcommand{\rt}{\right}
+\newcommand{\pt}{\phantom}
+\newcommand{\tf}{\therefore}
+\newcommand{\?}{\stackrel{?}{=}}
+\newcommand{\fr}{\frac}
+\newcommand{\dfr}{\dfrac}
+\newcommand{\ul}{\underline}
+\newcommand{\tn}{\tabularnewline}
+\newcommand{\nl}{\newline}
+\newcommand\relph[1]{\mathrel{\phantom{#1}}}
+\newcommand{\cm}{\checkmark}
+\newcommand{\ol}{\overline}
+\newcommand{\rd}{\color{red}}
+\newcommand{\bl}{\color{blue}}
+\newcommand{\pl}{\color{purple}}
+\newcommand{\og}{\color{orange!90!black}}
+\newcommand{\gr}{\color{green!40!black}}
+\newcommand{\nin}{\noindent}
+\newcommand{\la}{\lambda}
+\renewcommand{\th}{\theta}
+\newcommand{\al}{\alpha}
+\newcommand{\G}{\Gamma}
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,thick,inner sep=1pt] (char) {\small #1};}}
+
+\newcommand{\bc}{\begin{compactenum}[\quad--]}
+\newcommand{\ec}{\end{compactenum}}
+
+\newcommand{\p}{\partial}
+\newcommand{\pd}[2]{\frac{\partial{#1}}{\partial{#2}}}
+\newcommand{\dpd}[2]{\dfrac{\partial{#1}}{\partial{#2}}}
+\newcommand{\pdd}[2]{\frac{\partial^2{#1}}{\partial{#2}^2}}
+
+\begin{document}
+\renewcommand{\refname}{\uppercase{References}}
+% \raggedright
+
+\begin{titlepage}
+\begin{flushleft}
+
+% Title
+{\LARGE \bfseries Impacts of COVID-19 on urban rail transit energy consumption: A case study of Boston}\\[1cm]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Provisional author list; to be finalized once draft is ready.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+
+ \textbf{Zhuo Han\textsuperscript{1}} \\
+ Email: zhuohan@umass.edu  \\[0.5cm]
+
+ \textbf{Jimi B.\ Oke\textsuperscript{1}} \\
+ %\textit{Corresponding Author} \\
+ Email: jboke@umass.edu  \\[0.5 cm]
+
+% \textbf{Author 3 \textsuperscript{1}} \\
+% Email: @ ; Phone: \\[0.5 cm]
+ 
+ 
+\textbf{\textsuperscript{1} Department of Civil and Environmental Engineering, University of Massachusetts Amherst, MA 01003, United States} \\[0.3 cm]
+%\textbf{\textsuperscript{2} Department of Civil and Environmental Engineering, University of Massachusetts Amherst, MA 01003, United States} \\[0.3 cm]
+
+
+\wordcount words + \total{table} tables %+ \total{figure} figures
+
+\today
+
+\end{flushleft}
+\end{titlepage}
+
+%% This generates the title page from the information given above.
+\thispagestyle{empty}
+%\maketitle
+
+\newpage
+
+\thispagestyle{empty}
+ 
+
+\section{Abstract}
+
+
+\section{Introduction}
+
+
+
+\section{Data summary}
+
+The variables are summarized in \autoref{tab:variables}.
+\begin{table}[ht]\footnotesize
+    \centering
+    \begin{tabular}{l l}\toprule
+        \bf Variable & \bf Description \\
+       speed  &  train speed at each time record \\
+       acceleration  &  train acceleration at each time record \\
+       temperature & daily temperature in Boston area\\
+       ridership & tap-in ridership data for each half hour\\
+       distance & vehicle distance between each two time records\\
+       time\_hr & train operating time on each hour\\
+       average hourly speed & the average speed in one hour\\
+       speed\_X\_bin & time spent in an equal-probability speed interval \\
+       acceleration \_X\_bin & time spent in an equal-probability acceleration interval \\
+       \bottomrule
+    \end{tabular}
+    \caption{Summary of variables used in model}
+    \label{tab:variables}
+\end{table}
+
+
+
+
+\section{Methodologies}
+
+
+\subsection{Multiple linear regression}
+
+
+
+\subsection{COVID impacts analysis}
+
+
+
+\section{Results and Discussion}
+
+
+
+\section{Conclusion and future work}
+
+ 
+% \section{Author Contribution Statement}
+% The authors confirm contribution to the paper as follows: \\
+% Study conception and design: \\
+% Analysis and interpretation of results: \\
+% Manuscript preparation:
+
+%\section{Acknowledgment}
+
+\bibliography{references.bib}
+\bibliographystyle{trb}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+
