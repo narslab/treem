@@ -9,7 +9,7 @@ library(tidyr) # spread function
 
 #memory.limit(size=900000) #Windows-specific #JO
 # Select the month you want to investigate
-YEARLIST = c("19", "20")
+YEARLIST = c("20")
 MONTHLIST = c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
 DISTANCE_FILEPATH = "../../data/tidy/vehicle-trajectory-computation/"
 COMPUTATION_FILEPATH = "../../data/tidy/"
@@ -46,10 +46,8 @@ unit_transfer = function(df){
 bin_speeds <- function (dataframe, num_bins, test = FALSE) {
   dummy_cols = c(paste0("speed_bin_",1:num_bins,"_dummy"))
   bin_time_cols = c(paste0("speed_bin_",1:num_bins,"_time_hr"))
-  #cutpoints <- quantile(dataframe$speed_mph,seq(0, 1, 1/num_bins),na.rm=TRUE) 
   print("Reading speed bins")
   cutpoints = SPEED_CUTS
-  print("The speed bins are:")
   print(round(cutpoints,2))
   for(n in seq(1, num_bins)) {
     if(n == 1){
@@ -78,7 +76,6 @@ bin_accelerations <- function (dataframe, num_bins, test = FALSE) {
     bin_time_cols = c(paste0("accel_bin_",1:num_bins,"_time_hr"))
     print("Reading acceleration bins")
     cutpoints = ACCEL_CUTS 
-    print("The acceleration bins are:")
     print(round(cutpoints,2))    
     for(n in seq(1, num_bins)) {
       if(n == 1){
@@ -104,7 +101,6 @@ bin_accelerations <- function (dataframe, num_bins, test = FALSE) {
 # add speed-acceleration bin interaction terms
 bin_interaction_terms = function(df, num_speed_bins, num_accel_bins){
     print("Computing speed-acceleration interaction times")
-    df = data.table(df)
     dummy_interaction_cols = c()
     for (i in seq(1, num_speed_bins)){
         speed_dummy = paste0("speed_bin_", i, "_dummy")
@@ -122,14 +118,14 @@ bin_interaction_terms = function(df, num_speed_bins, num_accel_bins){
 }
 
 # Aggregate dataframe at hour level
-hour_aggregate <- function (dataframe, num_speed_bins, num_accel_bins) {
+hour_aggregate <- function (dt, num_speed_bins, num_accel_bins) {
     print("Aggregating observations by hour")
-    #dataframe = data.table(dataframe)
-    dataframe$month = as.character(dataframe$month)
-    dataframe$hour = as.character(dataframe$hour)
-    dataframe$day = as.character(dataframe$day)
+    #dt = data.table(dt)
+    dt$month = as.character(dt$month)
+    dt$hour = as.character(dt$hour)
+    dt$day = as.character(dt$day)
     # create another data table to summarize the number of trains running in each hour
-    d_num_trains <- dataframe[, c("month",'hour',"day","lineid","vehicleid")]
+    d_num_trains <- dt[, c("month",'hour',"day","lineid","vehicleid")]
     agg_d_num_trains = d_num_trains[, .(count = length(unique(vehicleid))), by = .(month,day,hour,lineid)]
     agg_d_num_trains_wide = spread(agg_d_num_trains, lineid,count)
    # interaction term name preparation for aggregating by hour
@@ -138,16 +134,19 @@ hour_aggregate <- function (dataframe, num_speed_bins, num_accel_bins) {
     interaction_name = outer(speed_name,accel_name, paste, sep="")
     # aggregate by hour
     sum_cols = c("distance_mile","time_hr",paste0("speed_bin_",1:num_speed_bins,"_time_hr"), paste0("accel_bin_", 1:num_accel_bins,"_time_hr"), interaction_name)
-    agg_df = dataframe[, lapply( .SD, sum , na.rm=TRUE), by = c("year","month",'hour',"day"), .SDcols = sum_cols]
-    avg_interval_speed_mph_df = dataframe[, lapply( .SD, mean , na.rm=TRUE), by = c("year","month","hour","day"), .SDcols = 'speed_mph']
-    agg_df[, 'avg_interval_speed_mph'] = avg_interval_speed_mph_df$speed_mph
-    agg_df[, 'avg_hour_speed_mph'] = agg_df$distance_mile/agg_df$time_hr
-    merged_agg_df = merge(agg_d_num_trains_wide,agg_df,all=T) 
-    return(merged_agg_df)
+    agg_dt = dt[, lapply( .SD, sum , na.rm=TRUE), by = c("year","month",'hour',"day"), .SDcols = sum_cols]
+    avg_interval_speed_mph_dt = dt[, lapply( .SD, mean , na.rm=TRUE), by = c("year","month","hour","day"), .SDcols = 'speed_mph']
+    agg_dt[, 'avg_interval_speed_mph'] = avg_interval_speed_mph_dt$speed_mph
+    agg_dt[, 'avg_hour_speed_mph'] = agg_dt$distance_mile/agg_dt$time_hr
+    merged_agg_dt = merge(agg_d_num_trains_wide, agg_dt, all=T) 
+    remove(dt)
+    remove(agg_d_num_trains_wide)
+    remove(agg_dt)
+    return(merged_agg_dt)
 }
 
 # Combine ridership data
-merge_ridership = function(merged_dt,d_ridership){
+merge_ridership = function(merged_dt, d_ridership){
     print("Merging ridership data")
     merged_dt$year = as.character(merged_dt$year)
     d_ridership$year = as.character(year(d_ridership$servicedate))
@@ -156,12 +155,14 @@ merge_ridership = function(merged_dt,d_ridership){
     d_ridership$hour = as.character(hour(d_ridership$halfhour))
     d_ridership = d_ridership[,sum(rawtaps_split),by = .(year, month, day,hour)] 
     names(d_ridership)[names(d_ridership) == 'V1'] <- 'ridership'
-    merged_db = merge(merged_dt,d_ridership,by = c("year","month","day","hour"),all=F) 
+    merged_db = merge(merged_dt, d_ridership, by = c("year","month","day","hour"),all=F) 
+    remove(merged_dt)
+    remove(d_ridership)
     return(merged_db)
 }
 
 # Combine energy consumption data
-merge_energy <- function (energy_df,hour_dt) {
+merge_energy <- function (energy_df, hour_dt) {
     print("Merging energy consumption data")
     # Melt by hour 
     melted_energy_df = melt(energy_df, id.vars=c('Year','Month','Day of Month','WJ','TAVG'), measure.vars = paste0("Hour ",1:24))
@@ -175,7 +176,10 @@ merge_energy <- function (energy_df,hour_dt) {
     hour_energy_dt$month = as.character(hour_energy_dt$month)
     hour_energy_dt$day = as.character(hour_energy_dt$day)
     hour_energy_dt$hour = as.character(hour_energy_dt$hour)
-    merged_dt = merge(hour_dt,hour_energy_dt,by = c("year","month","day","hour") , all = F)
+    merged_dt = merge(hour_dt, hour_energy_dt, by = c("year","month","day","hour") , all = F)
+    remove(energy_df)
+    remove(hour_dt)
+    remove(hour_energy_dt)
     return(merged_dt)
 }
 

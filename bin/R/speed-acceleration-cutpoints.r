@@ -76,7 +76,7 @@ get_acceleration_cutpoints <- function (DT, num_bins, test = FALSE) {
     return(df)
 }
 
-main <- function (num_speed_bins, num_accel_bins, num_days_to_sample, year_list, month_list) {
+main <- function (num_speed_bins, num_accel_bins, num_days_to_sample, year_list, month_list, line_number) {
     DT = data.table()
     SEEDLIST = c(111, 222, 333, 444, 555, 666, 777, 888, 999, 101010, 111111, 121212) #different seed for each month
     seed_counter = 1
@@ -84,6 +84,7 @@ main <- function (num_speed_bins, num_accel_bins, num_days_to_sample, year_list,
         for (m in month_list) {
             interval_DT = sample_day_trajectories(y, m, num_days_to_sample, SEEDLIST[seed_counter])
             DT = rbindlist( list(DT, interval_DT) ) # obtain sampled df from all observations
+            ##DT = DT(DT$lineid==line_number) - jimi/ Zhuo - complete
             seed_counter = seed_counter + 1
             remove(interval_DT)
         }
@@ -91,9 +92,12 @@ main <- function (num_speed_bins, num_accel_bins, num_days_to_sample, year_list,
     DT = convert_units(DT) 
     speed_cutpoints = get_speed_cutpoints(DT, num_speed_bins)
     acceleration_cutpoints = get_acceleration_cutpoints(DT, num_accel_bins)
+    ## ZHUO - update file names
     write.csv(speed_cutpoints, file.path(paste0(COMPUTATION_FILEPATH, paste0(paste("speed", y, "cutpoints", "bins" , num_speed_bins, sep = "-", collapse = ""), ".csv"))))
     write.csv(acceleration_cutpoints, file.path(paste0(COMPUTATION_FILEPATH, paste0(paste("acceleration", y, "cutpoints", "bins" , num_accel_bins, sep = "-", collapse = ""), ".csv"))))
     remove(DT)
 }
 
-main(NUM_SPEED_BINS, NUM_ACCEL_BINS, NUM_SAMPLE_DAYS, YEARLIST, MONTHLIST)
+for (LINE_NUMBER in c(1,2,3,4)) {
+    main(NUM_SPEED_BINS, NUM_ACCEL_BINS, NUM_SAMPLE_DAYS, YEARLIST, MONTHLIST, LINE_NUMBER)
+}
