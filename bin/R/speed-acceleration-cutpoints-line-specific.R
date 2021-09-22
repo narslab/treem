@@ -10,10 +10,11 @@ library(tidyr) # spread function
 #memory.limit(size=900000) #Windows-specific #JO
 
 YEARLIST =("19")
-MONTHLIST = c("01", "02")
-# MONTHLIST = c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10","12")
-DISTANCE_FILEPATH = "F:/data/tidy/vehicle-trajectory-computation/"
-COMPUTATION_FILEPATH = "F:/data/tidy/"
+MONTHLIST = c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10","11","12")
+DISTANCE_FILEPATH = "../../data/tidy/vehicle-trajectory-computation/"
+COMPUTATION_FILEPATH = "../../data/tidy/"
+DISTANCE_FILEPATH = "../../data/tidy/vehicle-trajectory-computation/"
+COMPUTATION_FILEPATH = "../../data/tidy/"
 
 NUM_SAMPLE_DAYS = 10
 NUM_SPEED_BINS = 6
@@ -79,7 +80,7 @@ get_acceleration_cutpoints <- function (DT, num_bins, test = FALSE) {
     return(df)
 }
 
-main <- function (num_speed_bins, num_accel_bins, num_days_to_sample, year_list, month_list, line_number) {
+main <- function (num_speed_bins, num_accel_bins, num_days_to_sample, year_list, month_list,line_number){
     DT = data.table()
     SEEDLIST = c(111, 222, 333, 444, 555, 666, 777, 888, 999, 101010, 111111, 121212) #different seed for each month
     seed_counter = 1
@@ -88,22 +89,22 @@ main <- function (num_speed_bins, num_accel_bins, num_days_to_sample, year_list,
             interval_DT = sample_day_trajectories(y, m, num_days_to_sample, SEEDLIST[seed_counter])
             DT = data.frame(DT)
             DT = rbindlist( list(DT, interval_DT) ) # obtain sampled df from all observations
-            # DT == DT[,lineid == line_number] # Subset the table by given lineid 
             seed_counter = seed_counter + 1
             remove(interval_DT)
         }
     }
     DT = convert_units(DT) 
-    DT == DT[,lineid == line_number] # Subset the table by given lineid
+    DT = DT[lineid == line_number] # Subset the table by given lineid
     speed_cutpoints = get_speed_cutpoints(DT, num_speed_bins)
     acceleration_cutpoints = get_acceleration_cutpoints(DT, num_accel_bins)
     # Write the speed bin tables and acceleration tables to the computation path
-    write.csv(speed_cutpoints, file.path(paste0(COMPUTATION_FILEPATH, paste0(paste("speed", y,"cutpoints","line","specific","bins", num_speed_bins,line_number, sep = "-", collapse = ""), ".csv"))))
+    # write.csv(speed_cutpoints, file.path(paste0(COMPUTATION_FILEPATH, paste0(paste("speed", y,"cutpoints","line","specific","bins", num_speed_bins,line_number, sep = "-", collapse = ""), ".csv"))))
+    write.csv(speed_cutpoints, file.path(paste0(COMPUTATION_FILEPATH, paste0(paste("speed", y,"cutpoints","bins", num_speed_bins,"line",line_number, sep = "-", collapse = ""), ".csv"))))
     write.csv(acceleration_cutpoints, file.path(paste0(COMPUTATION_FILEPATH, paste0(paste("acceleration", y, "cutpoints","line","specific","bins", num_accel_bins, line_number, sep = "-", collapse = ""), ".csv"))))
     remove(DT)
 }
 
 # Calculate the bins for each line
-for (LINE_NUMBER in c(1,4)) {
+for (LINE_NUMBER in c(1,2,3,4)) {
     main(NUM_SPEED_BINS, NUM_ACCEL_BINS, NUM_SAMPLE_DAYS, YEARLIST, MONTHLIST, LINE_NUMBER)
 }
