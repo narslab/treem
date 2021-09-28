@@ -9,7 +9,8 @@ library(tidyr) # spread function
 
 #memory.limit(size=900000) #Windows-specific #JO
 # Select the month you want to investigate
-YEARLIST = c("20")
+# YEARLIST = c("20")
+# MONTHLIST = c("01")
 MONTHLIST = c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
 DISTANCE_FILEPATH = "../../data/tidy/vehicle-trajectory-computation/"
 COMPUTATION_FILEPATH = "../../data/tidy/"
@@ -17,9 +18,29 @@ energy_df = fread("../../data/raw/energy-consumption-08-20.csv") # Read in energ
 d_ridership = fread("../../data/raw/ridership-2019-2020.csv")# Read in ridership data
 NUM_SPEED_BINS = 6
 NUM_ACCEL_BINS = 6
-# Do ===for four lines
-SPEED_CUTS_1 = data.frame(read.csv(paste0("../../data/tidy/speed-19-cutpoints-bins-", NUM_SPEED_BINS, ".csv")))$cutpoints
-ACCEL_CUTS_1 = data.frame(read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-bins-", NUM_ACCEL_BINS, ".csv")))$cutpoints
+#  Read the cutpoints for four lines
+SPEED_CUTS_1 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-1", ".csv"))$cutpoints
+SPEED_CUTS_2 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-2", ".csv"))$cutpoints
+SPEED_CUTS_3 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-3", ".csv"))$cutpoints
+SPEED_CUTS_4 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-4", ".csv"))$cutpoints
+ACCEL_CUTS_1 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-1", ".csv"))$cutpoints
+ACCEL_CUTS_2 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-2", ".csv"))$cutpoints
+ACCEL_CUTS_3 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-3", ".csv"))$cutpoints
+ACCEL_CUTS_4 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-4", ".csv"))$cutpoints
+
+# Read from Zhuo's hard drive
+COMPUTATION_FILEPATH = "F:/data/tidy/"
+DISTANCE_FILEPATH = "F:/data/tidy/vehicle-trajectory-computation/"
+energy_df = fread("F:/data/raw/energy-consumption-08-20.csv") # Read in energy data
+d_ridership = fread("F:/data/raw/ridership-2019-2020.csv")# Read in ridership data
+SPEED_CUTS_1 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-1", ".csv"))$cutpoints
+SPEED_CUTS_2 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-2", ".csv"))$cutpoints
+SPEED_CUTS_3 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-3", ".csv"))$cutpoints
+SPEED_CUTS_4 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-4", ".csv"))$cutpoints
+ACCEL_CUTS_1 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-1", ".csv"))$cutpoints
+ACCEL_CUTS_2 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-2", ".csv"))$cutpoints
+ACCEL_CUTS_3 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-3", ".csv"))$cutpoints
+ACCEL_CUTS_4 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-4", ".csv"))$cutpoints
 
 # aggregrate_trajectory_table
 line_aggregation = function(year,month){
@@ -45,10 +66,11 @@ unit_transfer = function(df){
 
 # Calculate the speed bins 
 bin_speeds <- function (dataframe, num_bins, line_number,test = FALSE) {
+  dataframe = dataframe[lineid == line_number]
   dummy_cols = c(paste0("speed_bin_",1:num_bins,"_dummy","_",line_number))
   bin_time_cols = c(paste0("speed_bin_",1:num_bins,"_time_hr","_",line_number))
   print("Reading speed bins")
-  cutpoints = SPEED_CUTS
+  cutpoints = get(paste0("SPEED_CUTS_",line_number))
   print(round(cutpoints,2))
   for(n in seq(1, num_bins)) {
     if(n == 1){
@@ -64,7 +86,7 @@ bin_speeds <- function (dataframe, num_bins, line_number,test = FALSE) {
  dataframe[, (bin_time_cols) := lapply(.SD, function(x) x * dataframe$time_hr ), .SDcols = dummy_cols]
  if (test) {
     print(paste0("Percentage error of summed speed bin times = ", 
-              round(100*(sum(colSums(dataframe %>% select(starts_with("speed_bin_") & ends_with("_time_hr","_",line_number)),na.rm=TRUE)) 
+              round(100*(sum(colSums(dataframe %>% select(starts_with("speed_bin_") & ends_with(paste0("_time_hr","_",line_number))),na.rm=TRUE)) 
                          - sum(dataframe$time_hr, na.rm=TRUE))/sum(dataframe$time_hr, na.rm=TRUE),2), "%"))
  }
  print("Done")
@@ -76,7 +98,7 @@ bin_accelerations <- function (dataframe, num_bins,line_number,test = FALSE) {
     dummy_cols = c(paste0("accel_bin_",1:num_bins,"_dummy","_",line_number))
     bin_time_cols = c(paste0("accel_bin_",1:num_bins,"_time_hr","_",line_number))
     print("Reading acceleration bins")
-    cutpoints = ACCEL_CUTS 
+    cutpoints = get(paste0("ACCEL_CUTS_",line_number)) 
     print(round(cutpoints,2))    
     for(n in seq(1, num_bins)) {
       if(n == 1){
@@ -92,7 +114,7 @@ bin_accelerations <- function (dataframe, num_bins,line_number,test = FALSE) {
     dataframe[, (bin_time_cols) := lapply(.SD, function(x) x * dataframe$time_hr ), .SDcols = dummy_cols]
     if (test) {
         print(paste0("Percentage error of summed acceleration bin times = ", 
-                 round(100*(sum(colSums(dataframe %>% select(starts_with("accel_bin_") & ends_with("_time_hr","_",line_number)),na.rm=TRUE)) 
+                 round(100*(sum(colSums(dataframe %>% select(starts_with("accel_bin_") & ends_with(paste0("_time_hr","_",line_number))),na.rm=TRUE)) 
                             - sum(dataframe$time_hr, na.rm=TRUE))/sum(dataframe$time_hr, na.rm=TRUE),2), "%"))                                                  
     }
     print("Done")
@@ -113,13 +135,13 @@ bin_interaction_terms = function(df, num_speed_bins, num_accel_bins, line_number
             set(df, j = dummy_interaction_col, value = df[[speed_dummy]]*df[[accel_dummy]])
         }
     }
-    df[, paste0(dummy_interaction_cols, "_time_hr","_",line_number) := lapply(.SD, function(x) x * df$time_hr ), .SDcols = dummy_interaction_cols]
+    df[, paste0(dummy_interaction_cols, "_time_hr") := lapply(.SD, function(x) x * df$time_hr ), .SDcols = dummy_interaction_cols]
     print("Done")
     return(df)
 }
 
 # Aggregate dataframe at hour level
-hour_aggregate <- function (dt, num_speed_bins, num_accel_bins) {
+hour_aggregate <- function (dt, num_speed_bins, num_accel_bins, line_number) {
     print("Aggregating observations by hour")
     #dt = data.table(dt)
     dt$month = as.character(dt$month)
@@ -131,10 +153,10 @@ hour_aggregate <- function (dt, num_speed_bins, num_accel_bins) {
     agg_d_num_trains_wide = spread(agg_d_num_trains, lineid,count)
    # interaction term name preparation for aggregating by hour
     speed_name = paste0("speed_bin_", 1:num_speed_bins)
-    accel_name = paste0("_","accel_bin_", 1:num_accel_bins,"_time_hr")
+    accel_name = paste0("_","accel_bin_", 1:num_accel_bins,"_",line_number,"_time_hr")
     interaction_name = outer(speed_name,accel_name, paste, sep="")
     # aggregate by hour
-    sum_cols = c("distance_mile","time_hr",paste0("speed_bin_",1:num_speed_bins,"_time_hr"), paste0("accel_bin_", 1:num_accel_bins,"_time_hr"), interaction_name)
+    sum_cols = c("distance_mile","time_hr",paste0("speed_bin_",1:num_speed_bins,"_time_hr","_",line_number), paste0("accel_bin_", 1:num_accel_bins,"_time_hr","_",line_number), interaction_name)
     agg_dt = dt[, lapply( .SD, sum , na.rm=TRUE), by = c("year","month",'hour',"day"), .SDcols = sum_cols]
     avg_interval_speed_mph_dt = dt[, lapply( .SD, mean , na.rm=TRUE), by = c("year","month","hour","day"), .SDcols = 'speed_mph']
     agg_dt[, 'avg_interval_speed_mph'] = avg_interval_speed_mph_dt$speed_mph
@@ -184,19 +206,19 @@ merge_energy <- function (energy_df, hour_dt) {
     return(merged_dt)
 }
 
-main <- function (num_speed_bins, num_accel_bins, energy_df,d_ridership, year_list, month_list) {
+main <- function (num_speed_bins, num_accel_bins, energy_df,d_ridership, year_list, month_list,line_number) {
     for (y in year_list) {
         for (m in month_list) {
-             interval_df = line_aggregation(y, m)
-             interval_agg <- interval_df %>% unit_transfer() %>% bin_speeds(num_speed_bins) %>% 
-             bin_accelerations(num_accel_bins) %>% bin_interaction_terms(num_speed_bins, num_accel_bins) %>% hour_aggregate(num_speed_bins, num_accel_bins)
+             interval_agg <- line_aggregation(y, m) %>% unit_transfer() %>% bin_speeds(num_speed_bins, line_number) %>% 
+             bin_accelerations(num_accel_bins, line_number) %>% bin_interaction_terms(num_speed_bins, num_accel_bins, line_number) %>% hour_aggregate(num_speed_bins, num_accel_bins, line_number)
              # merge with ridership
              merge_ridership = merge_ridership(interval_agg,d_ridership)
              # merge with energy table
              merge_energy = merge_energy(energy_df, merge_ridership)
-             write.csv(merge_energy,file.path(paste0(COMPUTATION_FILEPATH, paste(paste("trajectory", "aggregation" , y , m , sep = "-", collapse = ""), ".csv", sep=""))))
+             write.csv(merge_energy,file.path(paste0(COMPUTATION_FILEPATH, paste(paste("trajectory", "aggregation" , y , m , line_number, sep = "-", collapse = ""), ".csv", sep=""))))
             }
       }
 }
-
-main(NUM_SPEED_BINS, NUM_ACCEL_BINS, energy_df, d_ridership, YEARLIST, MONTHLIST)
+for (LINE_NUMBER in c(1,2,3,4)) {
+ main(NUM_SPEED_BINS, NUM_ACCEL_BINS, energy_df, d_ridership, YEARLIST, MONTHLIST, LINE_NUMBER)
+}
