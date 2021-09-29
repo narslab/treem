@@ -9,7 +9,7 @@ library(tidyr) # spread function
 
 #memory.limit(size=900000) #Windows-specific #JO
 # Select the month you want to investigate
-YEARLIST = c("20")
+YEARLIST = c("19","20")
 # MONTHLIST = c("01")
 MONTHLIST = c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
 DISTANCE_FILEPATH = "../../data/tidy/vehicle-trajectory-computation/"
@@ -29,7 +29,7 @@ ACCEL_CUTS_3 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-s
 ACCEL_CUTS_4 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-4", ".csv"))$cutpoints
 
 # Read from Zhuo's hard drive
-# COMPUTATION_FILEPATH = "F:/data/tidy/"
+# COMPUTATION_FILEPATH = "F:/data/tidy/"++
 # DISTANCE_FILEPATH = "F:/data/tidy/vehicle-trajectory-computation/"
 # energy_df = fread("F:/data/raw/energy-consumption-08-20.csv") # Read in energy data
 # d_ridership = fread("F:/data/raw/ridership-2019-2020.csv")# Read in ridership data
