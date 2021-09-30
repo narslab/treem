@@ -19,14 +19,14 @@ d_ridership = fread("../../data/raw/ridership-2019-2020.csv")# Read in ridership
 NUM_SPEED_BINS = 6
 NUM_ACCEL_BINS = 6
 #  Read the cutpoints for four lines
-SPEED_CUTS_1 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-1", ".csv"))$cutpoints
-SPEED_CUTS_2 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-2", ".csv"))$cutpoints
-SPEED_CUTS_3 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-3", ".csv"))$cutpoints
-SPEED_CUTS_4 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-4", ".csv"))$cutpoints
-ACCEL_CUTS_1 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-1", ".csv"))$cutpoints
-ACCEL_CUTS_2 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-2", ".csv"))$cutpoints
-ACCEL_CUTS_3 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-3", ".csv"))$cutpoints
-ACCEL_CUTS_4 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-4", ".csv"))$cutpoints
+SPEED_CUTS_1 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-bin-", NUM_SPEED_BINS, "-line-1", ".csv"))$cutpoints
+SPEED_CUTS_2 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-bin-", NUM_SPEED_BINS, "-line-2", ".csv"))$cutpoints
+SPEED_CUTS_3 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-bin-", NUM_SPEED_BINS, "-line-3", ".csv"))$cutpoints
+SPEED_CUTS_4 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-bin-", NUM_SPEED_BINS, "-line-4", ".csv"))$cutpoints
+ACCEL_CUTS_1 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-bin-", NUM_ACCEL_BINS, "-line-1", ".csv"))$cutpoints
+ACCEL_CUTS_2 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-bin-", NUM_ACCEL_BINS, "-line-2", ".csv"))$cutpoints
+ACCEL_CUTS_3 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-bin-", NUM_ACCEL_BINS, "-line-3", ".csv"))$cutpoints
+ACCEL_CUTS_4 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-bin-", NUM_ACCEL_BINS, "-line-4", ".csv"))$cutpoints
 
 # Read from Zhuo's hard drive
 # COMPUTATION_FILEPATH = "F:/data/tidy/"++
