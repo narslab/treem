@@ -9,38 +9,38 @@ library(tidyr) # spread function
 
 #memory.limit(size=900000) #Windows-specific #JO
 # Select the month you want to investigate
-YEARLIST = c("19","20")
-# MONTHLIST = c("01")
-MONTHLIST = c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
-DISTANCE_FILEPATH = "../../data/tidy/vehicle-trajectory-computation/"
-COMPUTATION_FILEPATH = "../../data/tidy/"
-energy_df = fread("../../data/raw/energy-consumption-08-20.csv") # Read in energy data
-d_ridership = fread("../../data/raw/ridership-2019-2020.csv")# Read in ridership data
+YEARLIST = c("19")
+MONTHLIST = c("01")
+# MONTHLIST = c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
+# DISTANCE_FILEPATH = "../../data/tidy/vehicle-trajectory-computation/"
+# COMPUTATION_FILEPATH = "../../data/tidy/"
+# energy_df = fread("../../data/raw/energy-consumption-08-20.csv") # Read in energy data
+# d_ridership = fread("../../data/raw/ridership-2019-2020.csv")# Read in ridership data
 NUM_SPEED_BINS = 6
 NUM_ACCEL_BINS = 6
 #  Read the cutpoints for four lines
-SPEED_CUTS_1 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-1", ".csv"))$cutpoints
-SPEED_CUTS_2 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-2", ".csv"))$cutpoints
-SPEED_CUTS_3 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-3", ".csv"))$cutpoints
-SPEED_CUTS_4 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-4", ".csv"))$cutpoints
-ACCEL_CUTS_1 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-1", ".csv"))$cutpoints
-ACCEL_CUTS_2 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-2", ".csv"))$cutpoints
-ACCEL_CUTS_3 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-3", ".csv"))$cutpoints
-ACCEL_CUTS_4 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-4", ".csv"))$cutpoints
+# SPEED_CUTS_1 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-1", ".csv"))$cutpoints
+# SPEED_CUTS_2 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-2", ".csv"))$cutpoints
+# SPEED_CUTS_3 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-3", ".csv"))$cutpoints
+# SPEED_CUTS_4 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-4", ".csv"))$cutpoints
+# ACCEL_CUTS_1 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-1", ".csv"))$cutpoints
+# ACCEL_CUTS_2 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-2", ".csv"))$cutpoints
+# ACCEL_CUTS_3 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-3", ".csv"))$cutpoints
+# ACCEL_CUTS_4 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-4", ".csv"))$cutpoints
 
 # Read from Zhuo's hard drive
-# COMPUTATION_FILEPATH = "F:/data/tidy/"++
-# DISTANCE_FILEPATH = "F:/data/tidy/vehicle-trajectory-computation/"
-# energy_df = fread("F:/data/raw/energy-consumption-08-20.csv") # Read in energy data
-# d_ridership = fread("F:/data/raw/ridership-2019-2020.csv")# Read in ridership data
-# SPEED_CUTS_1 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-1", ".csv"))$cutpoints
-# SPEED_CUTS_2 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-2", ".csv"))$cutpoints
-# SPEED_CUTS_3 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-3", ".csv"))$cutpoints
-# SPEED_CUTS_4 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-4", ".csv"))$cutpoints
-# ACCEL_CUTS_1 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-1", ".csv"))$cutpoints
-# ACCEL_CUTS_2 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-2", ".csv"))$cutpoints
-# ACCEL_CUTS_3 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-3", ".csv"))$cutpoints
-# ACCEL_CUTS_4 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-4", ".csv"))$cutpoints
+COMPUTATION_FILEPATH = "F:/data/tidy/"
+DISTANCE_FILEPATH = "F:/data/tidy/vehicle-trajectory-computation/"
+energy_df = fread("F:/data/raw/energy-consumption-08-20.csv") # Read in energy data
+d_ridership = fread("F:/data/raw/ridership-2019-2020.csv")# Read in ridership data
+SPEED_CUTS_1 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-1", ".csv"))$cutpoints
+SPEED_CUTS_2 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-2", ".csv"))$cutpoints
+SPEED_CUTS_3 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-3", ".csv"))$cutpoints
+SPEED_CUTS_4 = read.csv(paste0("F:/data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-4", ".csv"))$cutpoints
+ACCEL_CUTS_1 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-1", ".csv"))$cutpoints
+ACCEL_CUTS_2 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-2", ".csv"))$cutpoints
+ACCEL_CUTS_3 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-3", ".csv"))$cutpoints
+ACCEL_CUTS_4 = read.csv(paste0("F:/data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-4", ".csv"))$cutpoints
 
 # aggregrate_trajectory_table
 line_aggregation = function(year,month){
@@ -49,7 +49,8 @@ line_aggregation = function(year,month){
     dg$lineid = 4
     dg = subset(dg, select = c(trxtime, year, month, day, lineid, lat, lon , speed_kph , accel_mps2 , interval_seconds , dist_meters , vehicleid))
     dh = subset(dh, select = c(trxtime, year, month, day, lineid, lat, lon , speed_kph , accel_mps2 , interval_seconds , dist_meters , vehicleid))
-    df = rbind(dg, dh) 
+    df = rbind(dg, dh)
+    df = df[day < 8]
     remove(dg)
     remove(dh)
     return(df)
@@ -219,6 +220,6 @@ main <- function (num_speed_bins, num_accel_bins, energy_df,d_ridership, year_li
             }
       }
 }
-for (LINE_NUMBER in c(1,2,3,4)) {
+for (LINE_NUMBER in c(1,  2, 3, 4)) {
  main(NUM_SPEED_BINS, NUM_ACCEL_BINS, energy_df, d_ridership, YEARLIST, MONTHLIST, LINE_NUMBER)
 }
