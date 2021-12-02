@@ -19,6 +19,7 @@ MONTHLIST = c("01")
 NUM_SPEED_BINS = 6
 NUM_ACCEL_BINS = 6
 #  Read the cutpoints for four lines
+<<<<<<< HEAD
 # SPEED_CUTS_1 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-1", ".csv"))$cutpoints
 # SPEED_CUTS_2 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-2", ".csv"))$cutpoints
 # SPEED_CUTS_3 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-line-specific-bins-", NUM_SPEED_BINS, "-3", ".csv"))$cutpoints
@@ -27,6 +28,16 @@ NUM_ACCEL_BINS = 6
 # ACCEL_CUTS_2 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-2", ".csv"))$cutpoints
 # ACCEL_CUTS_3 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-3", ".csv"))$cutpoints
 # ACCEL_CUTS_4 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-line-specific-bins-", NUM_ACCEL_BINS, "-4", ".csv"))$cutpoints
+=======
+SPEED_CUTS_1 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-bin-", NUM_SPEED_BINS, "-line-1", ".csv"))$cutpoints
+SPEED_CUTS_2 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-bin-", NUM_SPEED_BINS, "-line-2", ".csv"))$cutpoints
+SPEED_CUTS_3 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-bin-", NUM_SPEED_BINS, "-line-3", ".csv"))$cutpoints
+SPEED_CUTS_4 = read.csv(paste0("../../data/tidy/speed-19-cutpoints-bin-", NUM_SPEED_BINS, "-line-4", ".csv"))$cutpoints
+ACCEL_CUTS_1 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-bin-", NUM_ACCEL_BINS, "-line-1", ".csv"))$cutpoints
+ACCEL_CUTS_2 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-bin-", NUM_ACCEL_BINS, "-line-2", ".csv"))$cutpoints
+ACCEL_CUTS_3 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-bin-", NUM_ACCEL_BINS, "-line-3", ".csv"))$cutpoints
+ACCEL_CUTS_4 = read.csv(paste0("../../data/tidy/acceleration-19-cutpoints-bin-", NUM_ACCEL_BINS, "-line-4", ".csv"))$cutpoints
+>>>>>>> 815b6f4a576c6b659d76e46826f666b03926aa81
 
 # Read from Zhuo's hard drive
 COMPUTATION_FILEPATH = "F:/data/tidy/"
